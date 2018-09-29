@@ -100,11 +100,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;DATACOLLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;DATACOLLE_EXPORTS;CGAL_USE_MPFR;CGAL_USE_GMP;CGAL_EIGEN3_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(CGAL11)\auxiliary\gmp\include;$(CGAL12)\winbuild\include;$(CGAL12)\include;$(BOOST_INCLUDEDIR);$(EIGEN_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>CGAL-vc140-mt-gd-4.12.lib;CGAL_ImageIO-vc140-mt-gd-4.12.lib;CGAL_Core-vc140-mt-gd-4.12.lib;libmpfr-4.lib;libgmp-10.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(CGAL12)\winbuild\lib;$(CGAL11)\auxiliary\gmp\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -144,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="datatypedef.h" />
     <ClInclude Include="prereq.h" />
+    <ClInclude Include="cgal_def.h" />
     <ClInclude Include="voronoi_diagram.h" />
   </ItemGroup>
   <ItemGroup>

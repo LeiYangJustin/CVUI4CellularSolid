@@ -1,5 +1,4 @@
 #include "cv_window.h"
-#include "../DataColle/datatypedef.h"
 #include "../DataColle/voronoi_diagram.h"
 
 int main(int argc, char** argv)
@@ -10,12 +9,11 @@ int main(int argc, char** argv)
 	while (true)
 	{
 		// add points
-		int x =0 , y = 0;
-		// get x and y from the CV window
-		cvWindow.getMouseClickForAddingVSite(x, y);
-
-		// update the new VD in the window
-		cvWindow.showVoronoiDiagram();
+		int x = 0, y = 0;
+		int flag;
+		// get x, y and flag from the CV window
+		flag = cvWindow.getMouseClick(x, y);
+		cvWindow.showUpdatedVoronoiDiagram();
 	}
 
 	return 0;

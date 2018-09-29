@@ -6,6 +6,13 @@
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
 
+class CCursorParameters
+{
+public:
+	cv::Point p_;
+	int flag_;
+};
+
 class CCVWindow
 {
 public:
@@ -19,18 +26,22 @@ public:
 	void setWindowParameters(char* winName, int timeElapse);
 
 	// show the voronoi diagram (actually its segments) in the window
-	void showVoronoiDiagram(CVoronoiDiagram *VD);
+	void showUpdatedVoronoiDiagram();
 
 	// detect mouse click that indicates adding voronoi site
-	void getMouseClickForAddingVSite(int &x, int &y);
+	// return a flag to indicate the mouse event
+	int getMouseClick(int &x, int &y);
 
 private:
 	void crop_voronoi_segments();
 	void visualize_diagram();
-	static void CCVWindow::onMouse(int event, int x, int y, int flags, void * userdata);
+
+	// static functions
+	static void CCVWindow::on_mouse(int event, int x, int y, int flags, void * userdata);
+	static void CCVWindow::on_trackbar(int, void *);
 
 	// private variables
-	std::vector<std::pair<WPoint, WPoint>> vsegments_;
+	std::vector<std::pair<iPoint2, iPoint2>> vsegments_;
 
 	// source image
 	cv::Mat src_img_;
@@ -45,9 +56,14 @@ private:
 	// parameter
 	char* winName_;
 	int timeElapse_;
-
+	char* trackBarName_;
+	int slider_;
+	int slider_max_;
 	// VD
-	CVoronoiDiagram* VD_;
+	CVoronoiDiagram* p_VD_;
+
+	// cursor parameter
+	CCursorParameters* p_cursorparameters_;
 };
 
 #endif // !C_CV_WINDOW
