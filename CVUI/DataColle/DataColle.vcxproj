@@ -101,7 +101,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;DATACOLLE_EXPORTS;CGAL_USE_MPFR;CGAL_USE_GMP;CGAL_EIGEN3_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(CGAL11)\auxiliary\gmp\include;$(CGAL12)\winbuild\include;$(CGAL12)\include;$(BOOST_INCLUDEDIR);$(EIGEN_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\winbuild\include;$(CGAL12)\include;$(BOOST_INCLUDEDIR);$(EIGEN_ROOT);$(OPENCV_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,9 +148,15 @@
     <ClInclude Include="datatypedef.h" />
     <ClInclude Include="prereq.h" />
     <ClInclude Include="cgal_def.h" />
+    <ClInclude Include="reconstructor.h" />
+    <ClInclude Include="mesh_optimizer.h" />
+    <ClInclude Include="skeleton_extractor.h" />
     <ClInclude Include="voronoi_diagram.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="reconstructor.cpp" />
+    <ClCompile Include="mesh_optimizer.cpp" />
+    <ClCompile Include="skeleton_extractor.cpp" />
     <ClCompile Include="voronoi_diagram.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

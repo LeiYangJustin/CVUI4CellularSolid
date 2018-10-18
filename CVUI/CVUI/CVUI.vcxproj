@@ -101,7 +101,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;WIN32;CGAL_USE_MPFR;CGAL_USE_GMP;CGAL_EIGEN3_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(CGAL11)\auxiliary\gmp\include;$(CGAL12)\winbuild\include;$(CGAL12)\include;$(BOOST_INCLUDEDIR);$(EIGEN_ROOT);$(OPENCV_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;$(BOOST_INCLUDEDIR);$(EIGEN_ROOT);$(OPENCV_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

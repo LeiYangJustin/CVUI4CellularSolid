@@ -27,9 +27,27 @@
     <ClInclude Include="voronoi_diagram.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="reconstructor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_optimizer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="skeleton_extractor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="voronoi_diagram.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="reconstructor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh_optimizer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="skeleton_extractor.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

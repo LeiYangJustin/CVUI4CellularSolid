@@ -11,6 +11,17 @@ CVoronoiDiagram::~CVoronoiDiagram()
 	delete rt_;
 }
 
+void CVoronoiDiagram::SetSites(const std::vector<iPoint2>& pts)
+{
+	std::vector<WPoint> wps;
+	for (int i = 0; i < pts.size(); i++)
+	{
+		BPoint bp(pts[i].x, pts[i].y);
+		wps.push_back(WPoint(bp, 0.0));
+	}
+	rt_->insert(wps.begin(), wps.end());
+}
+
 void CVoronoiDiagram::addSite(const iPoint2 &p)
 {
 	BPoint bp(p.x, p.y);
@@ -18,7 +29,7 @@ void CVoronoiDiagram::addSite(const iPoint2 &p)
 	rt_->insert(wp);
 }
 
-WPoint CVoronoiDiagram::pickSite(const iPoint2 &q)
+WPoint CVoronoiDiagram::pickSite(const iPoint2 &q) const
 {
 	// this can be replaced by the ANN search
 	// find the nearest and then compute the distance
@@ -53,4 +64,9 @@ void CVoronoiDiagram::setWeightToPickedSite(const BPoint &q, const double & w)
 void CVoronoiDiagram::getVoronoiSegments(std::vector<std::pair<iPoint2, iPoint2>>& vseg_list)
 {
 	std::cout << "do something: get Voronoi segments" << std::endl;
+}
+
+void CVoronoiDiagram::getTriangulation(Regular_triangulation *rt)
+{
+	rt = rt_;
 }
