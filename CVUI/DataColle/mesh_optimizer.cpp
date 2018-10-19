@@ -11,7 +11,7 @@ CMeshOptimizer::~CMeshOptimizer()
 {
 }
 
-void CMeshOptimizer::Update(CVoronoiDiagram *vd, std::vector<iPoint2>& X)
+void CMeshOptimizer::Update(CVoronoiDiagram *vd, std::vector<WPoint>& X)
 {
 	// refer to MMdGD2011
 

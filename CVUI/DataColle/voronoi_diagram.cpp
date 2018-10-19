@@ -11,32 +11,30 @@ CVoronoiDiagram::~CVoronoiDiagram()
 	delete rt_;
 }
 
-void CVoronoiDiagram::SetSites(const std::vector<iPoint2>& pts)
+void CVoronoiDiagram::SetSites(const std::vector<BPoint>& pts)
 {
-	std::vector<WPoint> wps;
+	rt_->clear();
 	for (int i = 0; i < pts.size(); i++)
 	{
-		BPoint bp(pts[i].x, pts[i].y);
-		wps.push_back(WPoint(bp, 0.0));
+		WPoint wp = WPoint(pts[i], 0.0);
+		rt_->insert(wp);
 	}
-	rt_->insert(wps.begin(), wps.end());
 }
 
-void CVoronoiDiagram::addSite(const iPoint2 &p)
+void CVoronoiDiagram::addSite(const BPoint &p)
 {
-	BPoint bp(p.x, p.y);
-	WPoint wp(bp, 0.0);
+	WPoint wp(p.x(), p.y());
 	rt_->insert(wp);
 }
 
-WPoint CVoronoiDiagram::pickSite(const iPoint2 &q) const
+WPoint CVoronoiDiagram::pickSite(const BPoint &q) const
 {
 	// this can be replaced by the ANN search
 	// find the nearest and then compute the distance
 	typedef Regular_triangulation::Finite_vertices_iterator FVIT;
 	FVIT fvit = rt_->finite_vertices_begin();
 	for (; fvit != rt_->finite_vertices_end(); ++fvit) {
-		if (abs(fvit->point().x() - q.x) < 5 && abs(fvit->point().y() - q.y) < 5)
+		if (abs(fvit->point().x() - q.x()) < 5 && abs(fvit->point().y() - q.y()) < 5)
 		{
 			// found
 			break;
@@ -61,12 +59,19 @@ void CVoronoiDiagram::setWeightToPickedSite(const BPoint &q, const double & w)
 	}
 }
 
-void CVoronoiDiagram::getVoronoiSegments(std::vector<std::pair<iPoint2, iPoint2>>& vseg_list)
+void CVoronoiDiagram::getVoronoiSegments(std::vector<std::pair<WPoint, WPoint>>& vseg_list)
 {
 	std::cout << "do something: get Voronoi segments" << std::endl;
 }
 
-void CVoronoiDiagram::getTriangulation(Regular_triangulation *rt)
+Regular_triangulation* CVoronoiDiagram::getTriangulation()
 {
-	rt = rt_;
+	return rt_;
+}
+
+void CVoronoiDiagram::UpdateTriangulation(const std::vector<WPoint>& wpts)
+{
+	rt_->clear();
+	for (auto viter = wpts.begin(); viter!=wpts.end(); ++viter)
+		rt_->insert(*viter);
 }

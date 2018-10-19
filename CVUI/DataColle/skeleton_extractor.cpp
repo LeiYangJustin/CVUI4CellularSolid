@@ -9,19 +9,25 @@ CSkeletonExtractor::~CSkeletonExtractor()
 {
 }
 
-std::vector<iPoint2> CSkeletonExtractor::getSolidSkeleton()
+std::vector<cv::Point> CSkeletonExtractor::getSolidSkeleton()
 {
 	return solid_skeleton_;
 }
 
-std::vector<iPoint2> CSkeletonExtractor::getVoidSkeleton()
+std::vector<cv::Point> CSkeletonExtractor::getVoidSkeleton()
 {
 	return void_skeleton_;
 }
 
-void CSkeletonExtractor::getVoidSkeletonSamples(std::vector<iPoint2>& X)
+void CSkeletonExtractor::getVoidSkeletonSamples(std::vector<cv::Point>& X)
 {
 	// get void skeleton samples as the local extrema
+}
+
+void CSkeletonExtractor::getBoundingDomain(int & width, int & height)
+{
+	width = src_img_.cols;
+	height = src_img_.rows;
 }
 
 void CSkeletonExtractor::extract_solid_morphological_skeleton()
@@ -36,3 +42,4 @@ void CSkeletonExtractor::extract_void_morphological_skeleton()
 	
 	// do extraction
 };
+
