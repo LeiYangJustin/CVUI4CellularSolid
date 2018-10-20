@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0106289F-1975-4FDB-B322-15EC4C696B34}</ProjectGuid>
+    <ProjectGuid>{A2C32E01-9FE5-4E61-A554-37E62C51CDB6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>DataColle</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
@@ -100,14 +100,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;DATACOLLE_EXPORTS;CGAL_USE_MPFR;CGAL_USE_GMP;CGAL_EIGEN3_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\winbuild\include;$(CGAL12)\include;$(BOOST_INCLUDEDIR);$(EIGEN_ROOT);$(OPENCV_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;DATACOLLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)\include;$(EIGEN_ROOT);$(BOOST_INCLUDEDIR);$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>CGAL-vc140-mt-gd-4.12.lib;CGAL_ImageIO-vc140-mt-gd-4.12.lib;CGAL_Core-vc140-mt-gd-4.12.lib;libmpfr-4.lib;libgmp-10.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(CGAL12)\winbuild\lib;$(CGAL11)\auxiliary\gmp\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x64\vc14\lib;$(CGAL12)\build\lib;$(CGAL12)\auxiliary\gmp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_core400d.lib;opencv_highgui400d.lib;opencv_imgcodecs400d.lib;opencv_imgproc400d.lib;CGAL-vc140-mt-gd-4.12.lib;CGAL_ImageIO-vc140-mt-gd-4.12.lib;CGAL_Core-vc140-mt-gd-4.12.lib;libmpfr-4.lib;libgmp-10.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -145,18 +145,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="datatypedef.h" />
-    <ClInclude Include="prereq.h" />
     <ClInclude Include="cgal_def.h" />
-    <ClInclude Include="reconstructor.h" />
-    <ClInclude Include="mesh_optimizer.h" />
-    <ClInclude Include="skeleton_extractor.h" />
+    <ClInclude Include="dataprereq.h" />
     <ClInclude Include="voronoi_diagram.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="reconstructor.cpp" />
-    <ClCompile Include="mesh_optimizer.cpp" />
-    <ClCompile Include="skeleton_extractor.cpp" />
     <ClCompile Include="voronoi_diagram.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

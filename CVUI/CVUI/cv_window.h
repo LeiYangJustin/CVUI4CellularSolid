@@ -1,10 +1,16 @@
 #ifndef C_CV_WINDOW
 
-#include "../DataColle/voronoi_diagram.h"
 #include <iostream>
-#include "opencv2/core.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/highgui.hpp"
+
+// INCLUDE OPENCV DIR
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgcodecs/imgcodecs.hpp>
+#include <opencv2/opencv.hpp>
+
+#include "voronoi_drawer.h"
+#include "../DataColle/voronoi_diagram.h"
 
 class CCursorParameters
 {
@@ -33,16 +39,6 @@ public:
 	int getMouseClick(int &x, int &y);
 
 private:
-	void crop_voronoi_segments();
-	void visualize_diagram();
-
-	// static functions
-	static void CCVWindow::on_mouse(int event, int x, int y, int flags, void * userdata);
-	static void CCVWindow::on_trackbar(int, void *);
-
-	// private variables
-	std::vector<std::pair<iPoint2, iPoint2>> vsegments_;
-
 	// source image
 	cv::Mat src_img_;
 
@@ -59,12 +55,21 @@ private:
 	char* trackBarName_;
 	int slider_;
 	int slider_max_;
-	// VD
-	CVoronoiDiagram* p_VD_;
+
+	// VD drawer
+	CVoronoiDrawer* p_VoroDrawer_;
 
 	// cursor parameter
 	CCursorParameters* p_cursorparameters_;
+
+	// static functions
+	static void CCVWindow::on_mouse(int event, int x, int y, int flags, void * userdata);
+	static void CCVWindow::on_trackbar(int, void *);
 };
+
+
+
+
 
 #endif // !C_CV_WINDOW
 

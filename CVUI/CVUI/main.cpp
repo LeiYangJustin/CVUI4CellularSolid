@@ -1,9 +1,9 @@
 #include  <string>
 #include "cv_window.h"
 #include "../DataColle/voronoi_diagram.h"
-#include "../DataColle/skeleton_extractor.h"
-#include "../DataColle/reconstructor.h"
-#include "../DataColle/mesh_optimizer.h"
+#include "../AlgColle/skeleton_extractor.h"
+#include "../AlgColle/reconstructor.h"
+#include "../AlgColle/mesh_optimizer.h"
 
 int main(int argc, char** argv)
 {
@@ -15,9 +15,9 @@ int main(int argc, char** argv)
 	// Step 1: extraction of skeletons
 	// read some gray-scale image from the given path
 	std::string filename;
-	cv::Mat src_img = cv::imread(filename);
+	//cv::Mat src_img = cv::imread(filename);
 	// extract skeletons
-	CSkeletonExtractor skeletonExtractor(src_img);
+	CSkeletonExtractor skeletonExtractor(filename.c_str());
 	std::vector<cv::Point> solid_skeleton = skeletonExtractor.getSolidSkeleton();
 	//std::vector<cv::Point> void_skeleton = skeletonExtractor.getVoidSkeleton();
 	/*----------------------------------------------*/

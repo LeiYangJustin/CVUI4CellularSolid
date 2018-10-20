@@ -6,7 +6,7 @@ CCVWindow::CCVWindow(char* fname):
 {
 	src_img_ = cv::imread(fname);
 	draw_ = cv::Mat(src_img_.size(), CV_8U);
-	p_VD_ = new CVoronoiDiagram;
+	p_VoroDrawer_ = new CVoronoiDrawer;
 	p_cursorparameters_ = new CCursorParameters;
 
 	cv::namedWindow(winName_, cv::WINDOW_AUTOSIZE);
@@ -17,7 +17,7 @@ CCVWindow::CCVWindow(char* fname):
 CCVWindow::~CCVWindow()
 {
 	delete p_cursorparameters_;
-	delete p_VD_;
+	delete p_VoroDrawer_;
 	delete winName_;
 }
 
@@ -35,9 +35,8 @@ void CCVWindow::setWindowParameters(char * winName, int timeElapse)
 
 void CCVWindow::showUpdatedVoronoiDiagram()
 {
-	p_VD_->getVoronoiSegments(vsegments_);
-	crop_voronoi_segments();
-	visualize_diagram();
+	std::vector<std::pair<cv::Point, cv::Point>> voronoi_edges;
+	voronoi_edges = p_VoroDrawer_->DrawVoronoi();
 }
 
 int CCVWindow::getMouseClick(int &x, int &y)
@@ -46,63 +45,32 @@ int CCVWindow::getMouseClick(int &x, int &y)
 	cv::Point p = p_cursorparameters_->p_;
 	int flag = p_cursorparameters_->flag_;
 
-	// left-click to add a new site to VD
-	if (flag == 1)
-	{
-		// add point and update VD
-		iPoint2 p2(p.x, p.y);
-		p_VD_->addSite(p2);
-	}
-	// right-click to add a new site to VD
-	else if (flag == 2)
-	{
-		// do we need to reset the trackbar?
-		iPoint2 query(p.x, p.y);
-		WPoint p2 = p_VD_->pickSite(query);
-		if (false)
-		{
-			// get weight from the trackbar
-			double w = p2.weight();
-			cv::setTrackbarPos(trackBarName_, winName_, (int)w*10.0);
-			// can we have some update?
-			slider_ = cv::getTrackbarPos(trackBarName_, winName_);
-			w = (double)slider_ / 10.0;
-			p_VD_->setWeightToPickedSite(p2.point(), w);
-		}
-	}
+	//// left-click to add a new site to VD
+	//if (flag == 1)
+	//{
+	//	// add point and update VD
+	//	cv::Point p2(p.x, p.y);
+	//	p_VD_->addSite(p2);
+	//}
+	//// right-click to add a new site to VD
+	//else if (flag == 2)
+	//{
+	//	// do we need to reset the trackbar?
+	//	cv::Point query(p.x, p.y);
+	//	WPoint p2 = p_VoroDrawer_->pickSite(query);
+	//	if (false)
+	//	{
+	//		// get weight from the trackbar
+	//		double w = p2.weight();
+	//		cv::setTrackbarPos(trackBarName_, winName_, (int)w*10.0);
+	//		// can we have some update?
+	//		slider_ = cv::getTrackbarPos(trackBarName_, winName_);
+	//		w = (double)slider_ / 10.0;
+	//		p_VoroDrawer_->setWeightToPickedSite(p2.point(), w);
+	//	}
+	//}
 
 	return flag;
-}
-
-void CCVWindow::crop_voronoi_segments()
-{
-	for (int i = 0; i < vsegments_.size(); i++)
-	{
-		std::pair<iPoint2, iPoint2> seg = vsegments_[i];
-		// crop with [0,0->0,1]
-
-		// crop with [0,1->1,1]
-
-		// crop with [1,1->1,0]
-
-		// crop with [1,0->0,0]
-
-	}
-
-	// finally we will have a updated list of voronoi segments for visualization
-}
-
-void CCVWindow::visualize_diagram()
-{
-	for (int i = 0; i < vsegments_.size(); i++)
-	{
-		std::pair<iPoint2, iPoint2> seg = vsegments_[i];
-		// draw each segment
-	}
-
-	//cv::namedWindow(winName_, cv::WINDOW_AUTOSIZE);
-	cv::imshow(winName_, draw_);
-	cv::waitKey(timeElapse_);
 }
 
 void CCVWindow::on_mouse(int event, int x, int y, int flags, void * ptr)

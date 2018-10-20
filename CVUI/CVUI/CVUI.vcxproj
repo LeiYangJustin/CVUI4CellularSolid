@@ -106,8 +106,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>DataColle.lib;opencv_core310.lib;opencv_highgui310.lib;opencv_imgcodecs310.lib;opencv_imgproc310.lib;CGAL-vc140-mt-gd-4.12.lib;CGAL_ImageIO-vc140-mt-gd-4.12.lib;CGAL_Core-vc140-mt-gd-4.12.lib;libmpfr-4.lib;libgmp-10.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x64\vc12\lib;$(CGAL12)\winbuild\lib;$(CGAL11)\auxiliary\gmp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DataColle.lib;AlgColle.lib;opencv_core400d.lib;opencv_highgui400d.lib;opencv_imgcodecs400d.lib;opencv_imgproc400d.lib;CGAL-vc140-mt-gd-4.12.lib;CGAL_ImageIO-vc140-mt-gd-4.12.lib;CGAL_Core-vc140-mt-gd-4.12.lib;libmpfr-4.lib;libgmp-10.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(OPENCV_DIR)\x64\vc14\lib;$(CGAL12)\build\lib;$(CGAL12)\auxiliary\gmp\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,10 +146,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cv_window.h" />
+    <ClInclude Include="voronoi_drawer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cv_window.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="voronoi_drawer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
