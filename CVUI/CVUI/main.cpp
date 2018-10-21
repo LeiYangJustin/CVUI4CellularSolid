@@ -7,19 +7,29 @@
 
 int main(int argc, char** argv)
 {
+	std::cout << "hello world" << std::endl;
+
 	// pre-defined parameters
 	double Threshold = 1.0;
 	double error = 100.0;
+	int cntIter = 0;
+	int MaxIter = 1;
 
 	/*----------------------------------------------*/
 	// Step 1: extraction of skeletons
 	// read some gray-scale image from the given path
-	std::string filename;
-	//cv::Mat src_img = cv::imread(filename);
+	std::string filename = "D:\\MyProjects\\CVUI4CellularSolid\\CVUI\\img_data\\test_example.png";
+	cv::Mat src_img = cv::imread(filename);
+	if (src_img.data == NULL)
+		return 0;
+
+	CImgData img_data;
+	img_data.SetSrcImg(src_img);
+
 	// extract skeletons
-	CSkeletonExtractor skeletonExtractor(filename.c_str());
+	CSkeletonExtractor skeletonExtractor(img_data);
 	std::vector<cv::Point> solid_skeleton = skeletonExtractor.getSolidSkeleton();
-	//std::vector<cv::Point> void_skeleton = skeletonExtractor.getVoidSkeleton();
+	std::vector<cv::Point> void_skeleton = skeletonExtractor.getVoidSkeleton();
 	/*----------------------------------------------*/
 
 	/*----------------------------------------------*/
@@ -41,7 +51,7 @@ int main(int argc, char** argv)
 	std::vector<Point2> P;
 	for (int i = 0; i < solid_skeleton.size(); i++)
 	{
-		Point2 p(samples[i].x, samples[i].y);
+		Point2 p(solid_skeleton[i].x, solid_skeleton[i].y);
 		P.push_back(p);
 	}
 	// declaration of the components
@@ -53,12 +63,13 @@ int main(int argc, char** argv)
 	{
 		// 
 		X = Xnew;
-
+		std::cout << "#VoroSites: " << X.size() << std::endl;
 		//Step 3.0: D <-- VoronoiDecomposer(X, Domain)
 		vd->UpdateTriangulation(X);
-
+		std::cout << "UpdateTriangulation" << std::endl;
 		//Step 3.1: D <-- Reconstructor(P, D)
 		reconstructor.Update(vd);
+		std::cout << "Reconstruction" << std::endl;
 
 		//Step 3.2: Xnew <-- MeshOptimizer(D, X)
 		std::vector<WPoint> Xnew;
@@ -74,13 +85,12 @@ int main(int argc, char** argv)
 			double tmpW = Xnew[i].weight() - X[i].weight();
 			error += (tmpP.squared_length() + tmpW*tmpW);
 		}
-		error /= double(X.size());
+		error /= double(X.size());	
+		std::cout << cntIter << std::endl;
+	} while (error > Threshold || ++cntIter < MaxIter);
+	// Repeat until criteria met
 
-		// Repeat until criteria met
-	} while (error > Threshold);
-	
-
-
+	std::cout << "We are done here" << std::endl;
 
 	//CCVWindow cvWindow(argv[0]);
 

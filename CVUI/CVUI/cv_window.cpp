@@ -37,6 +37,8 @@ void CCVWindow::showUpdatedVoronoiDiagram()
 {
 	std::vector<std::pair<cv::Point, cv::Point>> voronoi_edges;
 	voronoi_edges = p_VoroDrawer_->DrawVoronoi();
+	
+	// draw voronoi_edges to the window
 }
 
 int CCVWindow::getMouseClick(int &x, int &y)

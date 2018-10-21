@@ -3,6 +3,7 @@
 
 #include "dataprereq.h"
 #include <vector>
+#include <iostream>
 #include "cgal_def.h"
 
 class DATACOLLE_CLASS CVoronoiDiagram
