@@ -26,10 +26,10 @@
     <ClCompile Include="cv_window.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="voronoi_drawer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="voronoi_drawer.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

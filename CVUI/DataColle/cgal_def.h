@@ -4,6 +4,7 @@
 #include <vector>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Triangulation_vertex_base_with_info_2.h>
+#include <CGAL/Triangulation_face_base_with_info_2.h>
 #include <CGAL/Regular_triangulation_vertex_base_2.h>
 #include <CGAL/Regular_triangulation_face_base_2.h>
 #include <CGAL/Triangulation_data_structure_2.h>
@@ -11,10 +12,14 @@
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 
-typedef CGAL::Point_2<K> Point2;
-typedef CGAL::Vector_2<K> Vector2;
-typedef CGAL::Segment_2<K> Segment2;
+typedef K::Point_2 Point_2;
+typedef K::Vector_2 Vector_2;
+typedef K::Segment_2 Segment_2;
 
+// cropped voronoi
+typedef K::Iso_rectangle_2 Iso_rectangle_2;
+typedef K::Ray_2 Ray_2;
+typedef K::Line_2 Line_2;
 //typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 //
 //typedef My_vertex_base<K> Vb;
@@ -27,14 +32,17 @@ typedef CGAL::Segment_2<K> Segment2;
 //	double dist_;
 //};
 
-typedef CGAL::Triangulation_vertex_base_with_info_2<std::vector<Point2>, K> VbI;
-typedef CGAL::Regular_triangulation_vertex_base_2<K, VbI> RT_VbI;
-typedef CGAL::Regular_triangulation_face_base_2<K> RT_Fb;
-typedef CGAL::Triangulation_data_structure_2<RT_VbI, RT_Fb> Tds;
+//typedef CGAL::Triangulation_vertex_base_with_info_2<std::vector<Point_2>, K> VbI;
+typedef CGAL::Triangulation_face_base_with_info_2<std::vector<Point_2>, K> FbI;
+
+typedef CGAL::Regular_triangulation_vertex_base_2<K> RT_Vb;
+typedef CGAL::Regular_triangulation_face_base_2<K, FbI> RT_FbI;
+typedef CGAL::Triangulation_data_structure_2<RT_Vb, RT_FbI> Tds;
 
 typedef CGAL::Regular_triangulation_2<K, Tds> Regular_triangulation;
 typedef Regular_triangulation::Bare_point BPoint;
 typedef Regular_triangulation::Weighted_point WPoint;
+
 
 #endif
 

@@ -20,66 +20,73 @@ Regular_triangulation* CVoronoiDiagram::getTriangulation()
 
 void CVoronoiDiagram::UpdateTriangulation(const std::vector<WPoint>& wpts)
 {
+	clearMembers();
 	rt_->clear();
 	for (auto viter = wpts.begin(); viter != wpts.end(); ++viter)
+	{
 		rt_->insert(*viter);
+	}
 }
 
-void CVoronoiDiagram::GetCroppedVoronoiSegments(std::vector<std::pair<Point2, Point2>>& voronoi_segments)
+void CVoronoiDiagram::GetCroppedVoronoiSegments(Iso_rectangle_2 bbox, std::vector<Segment_2>& voronoi_segments)
 {
-	std::cout << "under construction" << std::endl;
+	if (voronoi_segments_.size() == 0)
+	{
+		Cropped_voronoi_from_delaunay vor(bbox);
+		//extract the cropped Voronoi diagram
+		rt_->draw_dual(vor);
+		voronoi_segments_.insert(voronoi_segments_.end(), vor.m_cropped_vd.begin(), vor.m_cropped_vd.end());
+		std::cout << vor.m_cropped_vd.size() << std::endl;
+	}
+	voronoi_segments = voronoi_segments_;
 }
 
-//void CVoronoiDiagram::SetSites(const std::vector<BPoint>& pts)
-//{
-//	rt_->clear();
-//	for (int i = 0; i < pts.size(); i++)
-//	{
-//		WPoint wp = WPoint(pts[i], 0.0);
-//		rt_->insert(wp);
-//	}
-//}
-//
-//void CVoronoiDiagram::addSite(const BPoint &p)
-//{
-//	WPoint wp(p.x(), p.y());
-//	rt_->insert(wp);
-//}
-//
-//WPoint CVoronoiDiagram::pickSite(const BPoint &q) const
-//{
-//	// this can be replaced by the ANN search
-//	// find the nearest and then compute the distance
-//	typedef Regular_triangulation::Finite_vertices_iterator FVIT;
-//	FVIT fvit = rt_->finite_vertices_begin();
-//	for (; fvit != rt_->finite_vertices_end(); ++fvit) {
-//		if (abs(fvit->point().x() - q.x()) < 5 && abs(fvit->point().y() - q.y()) < 5)
-//		{
-//			// found
-//			break;
-//		}
-//	}
-//	return fvit->point();
-//}
-//
-//void CVoronoiDiagram::setWeightToPickedSite(const BPoint &q, const double & w)
-//{
-//	// this can be replaced by the ANN search
-//	// find the nearest and then compute the distance
-//	typedef Regular_triangulation::Finite_vertices_iterator FVIT;
-//	FVIT fvit = rt_->finite_vertices_begin();
-//	for (; fvit != rt_->finite_vertices_end(); ++fvit) {
-//		if ( abs(fvit->point().x()-q.x()) < 5 && abs(fvit->point().y()-q.y()) < 5)
-//		{
-//			WPoint wp(fvit->point().point(), w);
-//			fvit->set_point(wp);
-//			break;
-//		}
-//	}
-//}
-//
-//void CVoronoiDiagram::getVoronoiSegments(std::vector<std::pair<WPoint, WPoint>>& vseg_list)
-//{
-//	std::cout << "do something: get Voronoi segments" << std::endl;
-//}
+void CVoronoiDiagram::GetFittedSegments(std::vector<Segment_2>& fitting_segments)
+{
+	typedef Regular_triangulation::Finite_edges_iterator RT_Finite_Edge_Iter;
+	typedef Regular_triangulation::Face_handle FaceHandle;
 
+	fitting_segments.clear();
+	for (RT_Finite_Edge_Iter eit = rt_->finite_edges_begin(); eit != rt_->finite_edges_end(); ++eit)
+	{
+		int vind = eit->second;
+		FaceHandle fh = eit->first;
+		FaceHandle fh_oppo = fh->neighbor(vind);
+
+		if (!rt_->is_infinite(fh) && !rt_->is_infinite(fh_oppo))
+		{
+			std::vector<Point_2> fh_plist = fh->info();
+			Vector_2 fh_average_point(0, 0);
+			for (int i = 0; i < fh_plist.size(); i++)
+			{
+				fh_average_point += (fh_plist[i] - Point_2(0, 0));
+			}
+			fh_average_point /= double(fh_plist.size());
+
+			std::vector<Point_2> fh_oppo_plist = fh_oppo->info();
+			Vector_2 fh_oppo_average_point(0, 0);
+			for (int i = 0; i < fh_oppo_plist.size(); i++)
+			{
+				fh_oppo_average_point += (fh_oppo_plist[i] - Point_2(0, 0));
+			}
+			fh_oppo_average_point /= double(fh_oppo_plist.size());
+
+			fitting_segments.push_back(Segment_2(Point_2(0,0)+fh_average_point, Point_2(0, 0)+fh_oppo_average_point));
+		}
+	}
+}
+
+void CVoronoiDiagram::GetFittingBasePts(std::vector<std::vector<Point_2>>& fitting_base_pts)
+{
+	typedef Regular_triangulation::Finite_faces_iterator RT_Finite_Face_Iter;
+	typedef Regular_triangulation::Face_handle FaceHandle;
+	
+	fitting_base_pts.clear();
+	for (RT_Finite_Face_Iter fit = rt_->finite_faces_begin(); fit != rt_->finite_faces_end(); ++fit)
+	{
+		if (!rt_->is_infinite(fit))
+		{
+			fitting_base_pts.push_back(fit->info());
+		}
+	}
+}

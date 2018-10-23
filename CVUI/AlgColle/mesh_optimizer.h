@@ -1,4 +1,5 @@
 #ifndef C_MESH_OPTIMIZER_H
+#define C_MESH_OPTIMIZER_H
 
 #include <vector>
 #include "../DataColle/voronoi_diagram.h"

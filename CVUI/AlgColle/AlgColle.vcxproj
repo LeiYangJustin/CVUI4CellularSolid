@@ -149,11 +149,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="geo_calculator.cpp" />
     <ClCompile Include="mesh_optimizer.cpp" />
     <ClCompile Include="reconstructor.cpp" />
     <ClCompile Include="skeleton_extractor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="geo_calculator.h" />
     <ClInclude Include="mesh_optimizer.h" />
     <ClInclude Include="algprereq.h" />
     <ClInclude Include="reconstructor.h" />

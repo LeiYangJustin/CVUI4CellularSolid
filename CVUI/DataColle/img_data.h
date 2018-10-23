@@ -1,4 +1,5 @@
-#ifndef C_IMG_DATA
+#ifndef C_IMG_DATA_H
+#define C_IMG_DATA_H
 
 #include "dataprereq.h"
 
@@ -13,25 +14,42 @@
 class DATACOLLE_CLASS CImgData
 {
 public:
+	CImgData(cv::Mat src_img);
 	CImgData();
 	~CImgData();
 	bool ReadImgFromFile(const char* filename);
-	void SetSrcImg(cv::Mat src_img);
+	//void SetSrcImg(cv::Mat src_img);
 
 	cv::Mat GetVoidImg() { return void_img_; };
 	cv::Mat GetSolidImg() { return solid_img_; };
 	cv::Mat GetSrcImg() { return src_img_; };
-	void getBoundingDomain(int & width, int & height);
+
+	void GetSolidSkeletonImg(cv::Mat &img) { convert_skeleton_to_img(true, img); };
+	void GetVoidSkeletonImg(cv::Mat &img) { convert_skeleton_to_img(false, img); };
+
+	std::vector<cv::Point>& GetSolidSkeleton() { return solid_skeletal_pts_; };
+	std::vector<cv::Point>& GetVoidSkeleton() { return void_skeletal_pts_; };
+	void SetSolidSkeleton(std::vector<cv::Point> solid_skeleton) { solid_skeletal_pts_ = solid_skeleton; };
+	void SetVoidSkeletonImg(std::vector<cv::Point> void_skeleton) 
+	{ has_void_skeleton_ = true;  void_skeletal_pts_ = void_skeleton; };
+
+	bool HasVoidSkeleton() { return has_void_skeleton_; };
+	void GetBoundingDomain(int & width, int & height);
 
 private:
 	cv::Mat src_img_;
 	cv::Mat solid_img_;
 	cv::Mat void_img_;	
+	bool has_void_skeleton_;
+
+	std::vector<cv::Point> void_skeletal_pts_;
+	std::vector<cv::Point> solid_skeletal_pts_;
 
 	void binarize_src_img();
+	void convert_skeleton_to_img(bool is_solid, cv::Mat &img);
 };
 
-#endif // !C_IMG_DATA
+#endif // !C_IMG_DATA_H
 
 
 

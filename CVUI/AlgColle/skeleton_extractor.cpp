@@ -1,38 +1,37 @@
 #include "skeleton_extractor.h"
 
-CSkeletonExtractor::CSkeletonExtractor(CImgData img_data):has_void_skeleton_(false)
+CSkeletonExtractor::CSkeletonExtractor(CImgData* img_data)
 {
 	img_data_ = img_data;
 }
 
 CSkeletonExtractor::~CSkeletonExtractor()
 {
+	//delete img_data_;
 }
 
 
 std::vector<cv::Point> CSkeletonExtractor::getSolidSkeleton()
 {
 	extract_morphological_skeleton(true);
-	return solid_skeleton_;
+	return img_data_->GetSolidSkeleton();
 }
 
 std::vector<cv::Point> CSkeletonExtractor::getVoidSkeleton()
 {
-	has_void_skeleton_ = true;
 	extract_morphological_skeleton(false);
-	return void_skeleton_;
+	return img_data_->GetVoidSkeleton();
 }
 
 void CSkeletonExtractor::getVoidSkeletonSamples(std::vector<cv::Point>& X)
 {
-	if (!has_void_skeleton_)
-		CSkeletonExtractor::getVoidSkeleton();
+	if (!img_data_->HasVoidSkeleton())
+		extract_morphological_skeleton(false);
 
 	// get void skeleton samples as the local extrema
-
-	cv::Mat void_skel_img;
-	convert_skeleton_to_img(void_skeleton_, void_skel_img);
-	flood_fill_sampling(void_skel_img, X);
+	cv::Mat void_skeleton_img;
+	img_data_->GetVoidSkeletonImg(void_skeleton_img);
+	flood_fill_sampling(void_skeleton_img, X, 30);
 }
 
 void CSkeletonExtractor::extract_morphological_skeleton(bool is_solid)
@@ -40,10 +39,10 @@ void CSkeletonExtractor::extract_morphological_skeleton(bool is_solid)
 	// 
 	cv::Mat skelImg, img;
 	if (is_solid) {
-		img_data_.GetSolidImg().copyTo(img);
+		img_data_->GetSolidImg().copyTo(img);
 	}
 	else {
-		img_data_.GetVoidImg().copyTo(img);
+		img_data_->GetVoidImg().copyTo(img);
 	}
 
 	// Skeletonization simple method
@@ -68,16 +67,12 @@ void CSkeletonExtractor::extract_morphological_skeleton(bool is_solid)
 		skeleton_thinning(img, skelImg);
 	}
 
-	// OUTPUT CV::POINTS
-	//skelImg_out = skelImg.clone();
-
-	cv::imshow("SkeletonWindonw", skelImg);
-	cv::waitKey(0);
-
-	if (is_solid)
-		get_CVPoints_from_bwImg(skelImg, solid_skeleton_);
-	else
-		get_CVPoints_from_bwImg(skelImg, void_skeleton_);
+	if (is_solid) {
+		get_CVPoints_from_bwImg(skelImg, img_data_->GetSolidSkeleton());
+	}
+	else {
+		get_CVPoints_from_bwImg(skelImg, img_data_->GetVoidSkeleton());
+	}		
 }
 
 void CSkeletonExtractor::get_CVPoints_from_bwImg(cv::Mat bwImg, std::vector<cv::Point>& pts)
@@ -241,7 +236,7 @@ void CSkeletonExtractor::find_critical_pts(cv::Mat binaryGuide, std::vector<cv::
 void CSkeletonExtractor::get_neighbors(cv::Point Apt, std::vector<cv::Point>& nns)
 {
 	int width, height;
-	img_data_.getBoundingDomain(width, height);
+	img_data_->GetBoundingDomain(width, height);
 
 	int x = Apt.x;
 	int y = Apt.y;
@@ -318,7 +313,7 @@ void CSkeletonExtractor::get_neighbors(cv::Point Apt, std::vector<cv::Point>& nn
 void CSkeletonExtractor::square_element(cv::Point Apt, int Rsize, std::vector<cv::Point>& nns)
 {
 	int width, height;
-	img_data_.getBoundingDomain(width, height);
+	img_data_->GetBoundingDomain(width, height);
 
 	int Nsize = 2 * Rsize + 1; // make sure this is an odd number
 	for (int r = 0; r < Nsize; r++) {
@@ -336,7 +331,7 @@ void CSkeletonExtractor::outer_skirt_element(cv::Point Apt, int Rsize, std::vect
 	assert(Rsize > 1);
 
 	int width, height;
-	img_data_.getBoundingDomain(width, height);
+	img_data_->GetBoundingDomain(width, height);
 
 	int Nsize = 2 * Rsize + 1; // make sure this is an odd number
 	std::set<std::pair<int, int>> nn_set;
@@ -432,17 +427,17 @@ void CSkeletonExtractor::skeleton_thinning_ZS_iter(cv::Mat & im, int iter)
 	im &= ~marker;
 }
 
-void CSkeletonExtractor::convert_skeleton_to_img(std::vector<cv::Point> skeleton, cv::Mat & img)
-{
-	int w, h;
-	img_data_.getBoundingDomain(w, h);
-	cv::Mat skel_img = cv::Mat(h, w, CV_8UC1);
-	skel_img.setTo(0);
-	
-	for (int i = 0; i < skeleton.size(); i++)
-	{
-		cv::Point p = skeleton[i];
-		skel_img.at<uchar>(p.y, p.x) = 255;
-	}
-	skel_img.copyTo(img);
-}
+//void CSkeletonExtractor::convert_skeleton_to_img(std::vector<cv::Point> skeleton, cv::Mat & img)
+//{
+//	int w, h;
+//	img_data_.GetBoundingDomain(w, h);
+//	cv::Mat skel_img = cv::Mat(h, w, CV_8UC1);
+//	skel_img.setTo(0);
+//	
+//	for (int i = 0; i < skeleton.size(); i++)
+//	{
+//		cv::Point p = skeleton[i];
+//		skel_img.at<uchar>(p.y, p.x) = 255;
+//	}
+//	skel_img.copyTo(img);
+//}

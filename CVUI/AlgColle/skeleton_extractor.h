@@ -16,24 +16,16 @@
 class ALGCOLLE_CLASS CSkeletonExtractor
 {
 public:
-	CSkeletonExtractor(CImgData img_data);
+	CSkeletonExtractor(CImgData* img_data);
 	~CSkeletonExtractor();
 
 	std::vector<cv::Point> getSolidSkeleton();
 	std::vector<cv::Point> getVoidSkeleton();
 
 	void getVoidSkeletonSamples(std::vector<cv::Point> & X);
-
+	void getImgData(CImgData* img_data) { img_data = img_data_; }
 private:
-	//cv::Mat src_img_;
-	//cv::Mat solid_img_;
-	//cv::Mat void_img_;
-
-	bool has_void_skeleton_;
-	CImgData img_data_;
-
-	std::vector<cv::Point> solid_skeleton_;
-	std::vector<cv::Point> void_skeleton_;
+	CImgData* img_data_;
 
 	// extraction of skeleton from a given image
 	void extract_morphological_skeleton(bool is_solid);
@@ -66,8 +58,6 @@ private:
 	// skeleton thinning
 	void skeleton_thinning(cv::Mat binaryInput, cv::Mat &binaryOutput);
 	void skeleton_thinning_ZS_iter(cv::Mat& im, int iter);
-
-	void convert_skeleton_to_img(std::vector<cv::Point> skeleton, cv::Mat &img);
 
 	struct cvpt_compare {
 		bool operator() (const cv::Point& lhs, const cv::Point& rhs) const {
