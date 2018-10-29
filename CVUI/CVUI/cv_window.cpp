@@ -1,44 +1,194 @@
 #include "cv_window.h"
 
+static double compute_dist_from_point_to_segment(Point_2 p, Segment_2 e)
+{
+	Vector_2 a = p - e.source();
+	Vector_2 v = e.target() - e.source();
+	Vector_2 proj_a_v = v*(a*v / (v*v));
+	double t = sqrt(proj_a_v.squared_length()) / sqrt(v.squared_length());
+
+	double s = a*v;
+	if (s < 0)
+		t = -t;
+	if (t >= 0 && t <= 1)
+	{
+		Vector_2 d = a - proj_a_v;
+		return sqrt(d.squared_length());
+	}
+	else if (t < 0) {
+		return sqrt(a.squared_length());
+	}
+	else {
+		return sqrt((p - e.target()).squared_length());
+	}
+};
+
+static double compute_dist_from_point_to_segment(cv::Point p, cv::Point src, cv::Point tgt)
+{
+	return compute_dist_from_point_to_segment(Point_2(p.x, p.y), Segment_2(Point_2(src.x, src.y), Point_2(tgt.x, tgt.y)));
+};
+
+
+static double two_cvpoint_distance(cv::Point p1, cv::Point p2)
+{
+	cv::Point d = p1 - p2;
+	return sqrt(d.dot(d));
+}
+
+struct UI_DATA_DRAW_SKELETON
+{
+	std::string winname_;
+	std::vector<std::pair<cv::Point, cv::Point>> cv_voronoi_edges_;
+	std::vector<std::pair<cv::Point, cv::Point>> cv_fitted_edges_;
+	CVoronoiDiagram* pVD_;
+
+	UI_DATA_DRAW_SKELETON(
+		std::vector<std::pair<cv::Point, cv::Point>> cv_voronoi_edges,
+		std::vector<std::pair<cv::Point, cv::Point>> cv_fitted_edges,
+		CVoronoiDiagram* pVD,
+		std::string winname)
+	{
+		cv_voronoi_edges_ = cv_voronoi_edges;
+		cv_fitted_edges_ = cv_fitted_edges;
+		pVD_ = pVD;
+		winname_ = winname;
+	}
+};
+
 struct tmp_Data
 {
+	std::string winname_;
+	std::vector<std::pair<cv::Point, cv::Point>> cv_voronoi_edges_;
+	std::map<int, std::vector<cv::Point>> map_lid_to_rplist_;
+
 	tmp_Data(std::vector<std::pair<cv::Point, cv::Point>> cv_voronoi_edges,
-		std::map<int, std::vector<cv::Point>> map_lid_to_rplist)
+		std::map<int, std::vector<cv::Point>> map_lid_to_rplist, 
+		std::string winname)
 	{
 		cv_voronoi_edges_ = cv_voronoi_edges;
 		map_lid_to_rplist_ = map_lid_to_rplist;
+		winname_ = winname;
 	}
-	std::vector<std::pair<cv::Point, cv::Point>> cv_voronoi_edges_;
-	std::map<int, std::vector<cv::Point>> map_lid_to_rplist_;
-	double compute_dist_from_point_to_segment(cv::Point p, cv::Point src, cv::Point tgt)
-	{
-		return compute_dist_from_point_to_segment(Point_2(p.x, p.y), Segment_2(Point_2(src.x, src.y), Point_2(tgt.x, tgt.y)));
-	};
-	double compute_dist_from_point_to_segment(Point_2 p, Segment_2 e)
-	{
-		Vector_2 a = p - e.source();
-		Vector_2 v = e.target() - e.source();
-		Vector_2 proj_a_v = v*(a*v / (v*v));
-		double t = sqrt(proj_a_v.squared_length()) / sqrt(v.squared_length());
-		
-		double s = a*v;
-		if (s < 0)
-			t = -t;
-		if (t >= 0 && t <= 1)
-		{
-			Vector_2 d = a - proj_a_v;
-			return sqrt(d.squared_length());
-		}
-		else if (t < 0) {
-			return sqrt(a.squared_length());
-		}
-		else {
-			return sqrt((p - e.target()).squared_length());
-		}
-	};
 };
 
-static void onMouse(int event, int x, int y, int flag, void* ptr)
+static void onMouseSkeleton(int event, int x, int y, int flag, void* ptr)
+{
+	if (event != cv::EVENT_LBUTTONDOWN)
+		return;
+
+	UI_DATA_DRAW_SKELETON *p = (UI_DATA_DRAW_SKELETON*)ptr;
+
+	int min_id_vedges = -1, id = 0;
+	double min_dist_vedges = 1000;
+	for (auto viter = p->cv_voronoi_edges_.begin(); viter != p->cv_voronoi_edges_.end(); ++viter, ++id)
+	{
+		double dist = compute_dist_from_point_to_segment(cv::Point(x, y), viter->first, viter->second);
+		if (dist < min_dist_vedges) {
+			min_dist_vedges = dist;
+			min_id_vedges = id;
+		}
+	}
+
+	int min_id_dedges = -1;
+	id = 0;
+	double min_dist_dedges = 1000;
+	for (auto viter = p->cv_fitted_edges_.begin(); viter != p->cv_fitted_edges_.end(); ++viter, ++id)
+	{
+		double dist = compute_dist_from_point_to_segment(cv::Point(x, y), viter->first, viter->second);
+		if (dist < min_dist_dedges) {
+			min_dist_dedges = dist;
+			min_id_dedges = id;
+		}
+	}
+
+	std::cout << "Window Name: " << p->winname_ << std::endl;
+	std::cout << "click at p" << cv::Point(x, y)
+		<< " whose corresponding segment is "
+		<< p->cv_voronoi_edges_[min_id_vedges].first
+		<< " -> "
+		<< p->cv_voronoi_edges_[min_id_vedges].second
+		<< std::endl;
+	std::cout << " and whose corresponding segment is "
+		<< p->cv_fitted_edges_[min_id_dedges].first
+		<< " -> "
+		<< p->cv_fitted_edges_[min_id_dedges].second
+		<< std::endl;
+
+	//typedef Regular_triangulation::Finite_edges_iterator RT_Finite_Edge_Iter;
+	//typedef Regular_triangulation::Face_handle FaceHandle;
+
+	//Regular_triangulation* rt = p->pVD_->getTriangulation();
+	//FaceHandle fh1 = rt->locate(WPoint(p->cv_voronoi_edges_[min_id_vedges].first.x, p->cv_voronoi_edges_[min_id_vedges].first.y));
+	//FaceHandle fh2 = rt->locate(WPoint(p->cv_voronoi_edges_[min_id_vedges].second.x, p->cv_voronoi_edges_[min_id_vedges].second.y));
+
+	//FaceHandle src_fh = NULL, tgt_fh = NULL;
+	//double src_dist = 1000, tgt_dist = 1000;
+	//for (auto fiter = rt->finite_faces_begin(); fiter != rt->finite_faces_end(); ++fiter)
+	//{
+	//	cv::Point cvp = cv::Point(rt->dual(fiter).x(), rt->dual(fiter).y());
+	//	if (two_cvpoint_distance(cvp, p->cv_voronoi_edges_[min_id_vedges].first) < src_dist)
+	//	{
+	//		src_dist = two_cvpoint_distance(cvp, p->cv_voronoi_edges_[min_id_vedges].first);
+	//		src_fh = fiter;
+	//	}
+	//	if (two_cvpoint_distance(cvp, p->cv_voronoi_edges_[min_id_vedges].second) < tgt_dist)
+	//	{
+	//		tgt_dist = two_cvpoint_distance(cvp, p->cv_voronoi_edges_[min_id_vedges].second);
+	//		tgt_fh = fiter;
+	//	}
+	//}
+	//if (src_fh != NULL && tgt_fh != NULL)
+	//{
+	//	std::cout << "The dual edge is: "
+	//		<< cv::Point(rt->dual(src_fh).x(), rt->dual(src_fh).y())
+	//		<< " -> "
+	//		<< cv::Point(rt->dual(tgt_fh).x(), rt->dual(tgt_fh).y())
+	//		<< std::endl;
+
+	//	Vector_2 src_pt(0, 0);
+	//	Vector_2 tgt_pt(0, 0);
+	//	std::vector<Point_2> src_plist = src_fh->info();
+	//	for (int i = 0; i < src_plist.size(); i++)
+	//	{
+	//		src_pt += (src_plist[i] - Point_2(0, 0));
+	//	}
+	//	src_pt /= double(src_plist.size());
+
+	//	std::vector<Point_2> tgt_plist = tgt_fh->info();
+	//	for (int i = 0; i < tgt_plist.size(); i++)
+	//	{
+	//		tgt_pt += (tgt_plist[i] - Point_2(0, 0));
+	//	}
+	//	tgt_pt /= double(tgt_plist.size());
+
+	//	std::cout << " whose fitted segment as computed is "
+	//		<< cv::Point(src_pt.x(), src_pt.y())
+	//		<< " -> "
+	//		<< cv::Point(tgt_pt.x(), tgt_pt.y())
+	//		<< std::endl;
+
+	//	std::cout << "They, respectively, are based on:" << std::endl;
+	//	std::copy(src_fh->info().begin(), src_fh->info().end(), std::ostream_iterator<Point_2>(std::cout, " / "));
+	//	std::cout << std::endl;
+	//	std::copy(tgt_fh->info().begin(), tgt_fh->info().end(), std::ostream_iterator<Point_2>(std::cout, " / "));
+	//	std::cout << std::endl;
+	//}
+
+	//std::cout << " whose fitted segment is "
+	//	<< cv::Point(fh_average_point.x(), fh_average_point.y())
+	//	<< " -> "
+	//	<< cv::Point(fh_oppo_average_point.x(), fh_oppo_average_point.y())
+	//	<< std::endl;
+	//std::cout << "The dist from the click to the segment is " <<
+	//	compute_dist_from_point_to_segment(cv::Point(x, y),
+	//		p->cv_voronoi_edges_[min_id].first,
+	//		p->cv_voronoi_edges_[min_id].second)
+	//	<< std::endl;
+	//std::cout << std::endl;
+}
+
+
+static void onMouseReconstruction(int event, int x, int y, int flag, void* ptr)
 {
 	if (event != cv::EVENT_LBUTTONDOWN)
 		return;
@@ -65,6 +215,7 @@ static void onMouse(int event, int x, int y, int flag, void* ptr)
 			}
 		}
 	}
+	std::cout << "Window Name: " << p->winname_ << std::endl;
 	std::cout << "click at p" << cv::Point(x,y) << " with label " << min_id
 		<< " whose corresponding segment is " 
 		<< p->cv_voronoi_edges_[min_id].first
@@ -72,12 +223,11 @@ static void onMouse(int event, int x, int y, int flag, void* ptr)
 		<< p->cv_voronoi_edges_[min_id].second
 		<< std::endl;
 	std::cout << "The dist from the click to the segment is " <<
-		p->compute_dist_from_point_to_segment(cv::Point(x, y),
+		compute_dist_from_point_to_segment(cv::Point(x, y),
 			p->cv_voronoi_edges_[min_id].first,
 			p->cv_voronoi_edges_[min_id].second)
 		<< std::endl;
 	std::cout << std::endl;
-		
 }
 
 CCVWindow::CCVWindow():
@@ -150,14 +300,23 @@ void CCVWindow::ShowReconstructionPointClusters(std::vector<Point_2> rp_list, st
 
 	for (auto miter = map_lid_to_rplist.begin(); miter != map_lid_to_rplist.end(); ++miter)
 	{
+		if (miter->first == -1)
+			continue;
 		if (miter->first % 1 == 0)
 		{
-			drawPolyLine(result_img, miter->second, miter->first, 2);
+			drawPolyLine(result_img, miter->second, miter->first, 1);
 			drawLine(result_img,
 				cv_voronoi_edges[miter->first].first, cv_voronoi_edges[miter->first].second,
-				miter->first);
+				miter->first, 2);
 		}
 	}
+
+	//for (int i = 0; i < cv_voronoi_edges.size(); i++)
+	//{
+	//	drawLine(result_img,
+	//		cv_voronoi_edges[i].first, cv_voronoi_edges[i].second,
+	//		i, 2);
+	//}
 
 	//for (int i = 0; i < rp_list.size(); i++)
 	//{
@@ -166,23 +325,24 @@ void CCVWindow::ShowReconstructionPointClusters(std::vector<Point_2> rp_list, st
 	//		rp_label_list[i]);
 	//}
 	
-	cv::namedWindow("Reconstruction", cv::WINDOW_AUTOSIZE);
-	cv::imshow("Reconstruction", result_img);
+	std::string winname = "Reconstruction";
+	cv::namedWindow(winname, cv::WINDOW_AUTOSIZE);
+	cv::imshow(winname, result_img);
+	cv::waitKey(3);
+	//tmp_Data p(cv_voronoi_edges, map_lid_to_rplist, winname);
+	//cv::setMouseCallback(winname, onMouseReconstruction, (void*)&p);
+	//std::cout << "Please Pick a point!";
 
-	tmp_Data p(cv_voronoi_edges, map_lid_to_rplist);
-	cv::setMouseCallback("Reconstruction", onMouse, (void*)&p);
-	std::cout << "Please Pick a point!";
-
-	for (;;)
-	{
-		int c = cv::waitKey(0);
-		if (c == 27)
-		{
-			std::cout << "Exit ...\n";
-			break;
-		}
-	}
-	cv::destroyAllWindows();
+	//for (;;)
+	//{
+	//	int c = cv::waitKey(0);
+	//	if (c == 27)
+	//	{
+	//		std::cout << "Exit ...\n";
+	//		break;
+	//	}
+	//}
+	//cv::destroyAllWindows();
 }
 
 void CCVWindow::drawSkeleton(int elapseTime, bool is_overlay)
@@ -226,50 +386,45 @@ void CCVWindow::drawSkeleton(int elapseTime, bool is_overlay)
 		cv::waitKey(5);
 	}
 
-	cv::Mat result_img;
-	std::vector<cv::Mat> channels(3);
-	cv::Mat chnl2 = p_img_data->GetSolidImg().clone();
-	cv::Mat chnl1 = p_img_data->GetSolidImg().clone();
-	cv::Mat chnl0 = p_img_data->GetSolidImg().clone();
-	channels[2] = chnl2.clone(); // r
-	channels[1] = chnl1.clone(); // g
-	channels[0] = chnl0.clone(); // b
-	cv::merge(channels, result_img);
-
 	// draw voronoi edges
 	std::vector<std::pair<cv::Point, cv::Point>> voronoi_edges;
 	voronoi_edges = p_voro_drawer_->GetVoronoiEdges();
 	for (int i = 0; i < voronoi_edges.size(); i++) {
 		//cv::line(overlayImg, voronoi_edges[i].first, voronoi_edges[i].second, cv::Scalar(255, 0, 0), 2, 2);
-		//drawLine(overlayImg, voronoi_edges[i].first, voronoi_edges[i].second, -1, 1);
+		drawLine(overlayImg, voronoi_edges[i].first, voronoi_edges[i].second, -1, 1);
 	}
 
 	// draw fitted edges
 	std::vector<std::pair<cv::Point, cv::Point>> fitted_edges;
 	fitted_edges = p_voro_drawer_->GetFittedEdges();
+	//fitted_edges = p_voro_drawer_->GetDualEdges();
 	for (int i = 0; i < fitted_edges.size(); i++) {
-		//cv::line(overlayImg, fitted_edges[i].first, fitted_edges[i].second, cv::Scalar(0, 255, 0), 2, 2);
-		drawLine(overlayImg, fitted_edges[i].first, fitted_edges[i].second, -1, 2);
+		//cv::line(overlayImg, fitted_edges[i].first, fitted_edges[i].second, cv::Scalar(0, 255, 0), 4, 4);
+		drawLine(overlayImg, fitted_edges[i].first, fitted_edges[i].second, -2, 2);
 	}
 
-	//// draw fitting base pts
-	//std::vector<std::pair<cv::Point, cv::Point>> fitting_base_pts;
-	//fitting_base_pts = p_voro_drawer_->GetFittingBasePoints();
-	//for (int i = 0; i < fitting_base_pts.size(); i++) {
-	//	//cv::line(result_img, fitting_base_pts[i].first, fitting_base_pts[i].second, cv::Scalar(0, 0, 255), 2, 2);
-	//	drawLine(overlayImg, fitting_base_pts[i].first, fitting_base_pts[i].second, i, 2);
-	//}
-	// draw fitting base pts
-	std::vector<std::vector<cv::Point>> fitting_base_pts;
-	fitting_base_pts = p_voro_drawer_->GetFittingBasePointsList();
-	for (int i = 0; i < fitting_base_pts.size(); i++) {
-		//cv::line(result_img, fitting_base_pts[i].first, fitting_base_pts[i].second, cv::Scalar(0, 0, 255), 2, 2);
-		drawPolyLine(overlayImg, fitting_base_pts[i], i, 2);
-	}
-
+	cv::namedWindow(winName_);
 	//cv::namedWindow(winName_, cv::WINDOW_KEEPRATIO);
 	cv::imshow(winName_, overlayImg);
-	cv::waitKey(elapseTime);
+	cv::waitKey(0);
+
+	//CVoronoiDiagram* pVD = p_voro_drawer_->GetVD();
+
+	//UI_DATA_DRAW_SKELETON p(voronoi_edges, fitted_edges, pVD, winName_);
+	//cv::setMouseCallback(winName_, onMouseSkeleton, (void*)&p);
+	//std::cout << "Please Pick a point!";
+
+	//for (;;)
+	//{
+	//	int c = cv::waitKey(0);
+	//	if (c == 27)
+	//	{
+	//		std::cout << "Exit ...\n";
+	//		break;
+	//	}
+	//}
+	//cv::destroyAllWindows();
+
 
 	//if (b_output_)
 	//{
@@ -288,40 +443,50 @@ void CCVWindow::drawSkeleton(int elapseTime, bool is_overlay)
 void CCVWindow::drawLine(cv::Mat & img, cv::Point p1, cv::Point p2, int label, int lw)
 {
 	cv_color_palette color_pat;
+	float tipLength = 0.5;
 	switch (label % 10)
 	{
 	case 0:
-		cv::arrowedLine(img, p1, p2, color_pat.color_0, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_0, lw, lw, tipLength);
 		break;
 	case 1:
-		cv::arrowedLine(img, p1, p2, color_pat.color_1, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_1, lw, lw, tipLength);
 		break;
 	case 2:
-		cv::arrowedLine(img, p1, p2, color_pat.color_2, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_2, lw, lw, tipLength);
 		break;
 	case 3:
-		cv::arrowedLine(img, p1, p2, color_pat.color_3, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_3, lw, lw, tipLength);
 		break;
 	case 4:
-		cv::arrowedLine(img, p1, p2, color_pat.color_4, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_4, lw, lw, tipLength);
 		break;
 	case 5:
-		cv::arrowedLine(img, p1, p2, color_pat.color_5, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_5, lw, lw, tipLength);
 		break;
 	case 6:
-		cv::arrowedLine(img, p1, p2, color_pat.color_6, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_6, lw, lw, tipLength);
 		break;
 	case 7:
-		cv::arrowedLine(img, p1, p2, color_pat.color_7, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_7, lw, lw, tipLength);
 		break;
 	case 8:
-		cv::arrowedLine(img, p1, p2, color_pat.color_8, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_8, lw, lw, tipLength);
 		break;
 	case 9:
-		cv::arrowedLine(img, p1, p2, color_pat.color_9, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_9, lw, lw, tipLength);
+		break;
+	case -1:
+		cv::arrowedLine(img, p1, p2, color_pat.color_blue, lw, lw, tipLength);
+		break;
+	case -2:
+		cv::arrowedLine(img, p1, p2, color_pat.color_green, lw, lw, tipLength);
+		break;
+	case -3:
+		cv::arrowedLine(img, p1, p2, color_pat.color_red, lw, lw, tipLength);
 		break;
 	default:
-		cv::arrowedLine(img, p1, p2, color_pat.color_default, lw, lw);
+		cv::arrowedLine(img, p1, p2, color_pat.color_default, lw, lw, tipLength);
 		break;
 	}
 }
@@ -374,76 +539,8 @@ cv::Point CCVWindow::convert_to_cvPoint(Point_2 p)
 	return cv::Point(p.x(), p.y());
 }
 
-//
-//int CCVWindow::getMouseClick(int &x, int &y)
-//{
-//	cv::setMouseCallback(winName_, on_mouse, &p_cursorparameters_);
-//	cv::Point p = p_cursorparameters_->p_;
-//	int flag = p_cursorparameters_->flag_;
-//
-//	//// left-click to add a new site to VD
-//	//if (flag == 1)
-//	//{
-//	//	// add point and update VD
-//	//	cv::Point p2(p.x, p.y);
-//	//	p_VD_->addSite(p2);
-//	//}
-//	//// right-click to add a new site to VD
-//	//else if (flag == 2)
-//	//{
-//	//	// do we need to reset the trackbar?
-//	//	cv::Point query(p.x, p.y);
-//	//	WPoint p2 = p_VoroDrawer_->pickSite(query);
-//	//	if (false)
-//	//	{
-//	//		// get weight from the trackbar
-//	//		double w = p2.weight();
-//	//		cv::setTrackbarPos(trackBarName_, winName_, (int)w*10.0);
-//	//		// can we have some update?
-//	//		slider_ = cv::getTrackbarPos(trackBarName_, winName_);
-//	//		w = (double)slider_ / 10.0;
-//	//		p_VoroDrawer_->setWeightToPickedSite(p2.point(), w);
-//	//	}
-//	//}
-//
-//	return flag;
-//}
-//
-//void CCVWindow::on_mouse(int event, int x, int y, int flags, void * ptr)
-//{
-//	CCursorParameters* cp = (CCursorParameters*)ptr;
-//	// when click left button, we record the position of the cursor for adding a new site
-//	if (event == cv::EVENT_LBUTTONDOWN)
-//	{
-//		std::cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
-//		cp->p_.x = x;
-//		cp->p_.y = y;
-//		cp->flag_ = flags;
-//	}
-//	// when click right button, we record the position of the cursor for selecting a new site
-//	else if (event == cv::EVENT_RBUTTONDOWN)
-//	{
-//		std::cout << "Right button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
-//		cp->p_.x = x;
-//		cp->p_.y = y;
-//		cp->flag_ = flags;
-//	}
-//	//else if (event == cv::EVENT_MBUTTONDOWN)
-//	//{
-//	//	std::cout << "Middle button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
-//	//}
-//	//else if (event == cv::EVENT_MOUSEMOVE)
-//	//{
-//	//	std::cout << "Mouse move over the window - position (" << x << ", " << y << ")" << std::endl;
-//	//}
-//}
-//
-//void CCVWindow::on_trackbar(int, void *)
-//{
-//	//alpha = (double)alpha_slider / alpha_slider_max;
-//	//beta = (1.0 - alpha);
-//
-//	//addWeighted(src1, alpha, src2, beta, 0.0, dst);
-//
-//	//imshow("Linear Blend", dst);
-//}
+Point_2 CCVWindow::convert_to_Point_2(cv::Point p)
+{
+	return Point_2(p.x, p.y);
+}
+

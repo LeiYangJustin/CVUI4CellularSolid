@@ -12,12 +12,15 @@
 #include "../DataColle/voronoi_diagram.h"
 #include "../DataColle/img_data.h"
 
+#include "cv_compare.h"
+
 class CVoronoiDrawer
 {
 public:
 	CVoronoiDrawer();
 	~CVoronoiDrawer();
 	void SetVD(CVoronoiDiagram* pVD);
+	CVoronoiDiagram* GetVD() { return pVD_; };
 	void SetImgData(CImgData* p_img_data);
 	CImgData* GetImgData() const { return p_img_data_; };
 
@@ -34,10 +37,19 @@ public:
 	//{
 	//	return cv_fitting_base_pts_;
 	//}
-	std::vector<std::vector<cv::Point>> GetFittingBasePointsList()
+	//std::vector<std::vector<cv::Point>> GetFittingBasePointsList()
+	//{
+	//	return cv_fitting_base_pts_list_;
+	//}
+	std::map<cv::Point, std::vector<cv::Point>, CV_LESS_COMPARE> GetFittingBasePointsMap()
 	{
-		return cv_fitting_base_pts_list_;
+		return cv_fitting_base_pts_map_;
 	}
+	std::vector<std::pair<cv::Point, cv::Point>> GetDualEdges()
+	{
+		return cv_dual_edges_;
+	}
+		
 
 private:
 	CVoronoiDiagram* pVD_;
@@ -46,12 +58,15 @@ private:
 
 	std::vector<std::pair<cv::Point, cv::Point>> cv_voronoi_edges_;
 	std::vector<std::pair<cv::Point, cv::Point>> cv_fitted_edges_;
+	std::vector<std::pair<cv::Point, cv::Point>> cv_dual_edges_;
 	//std::vector<std::pair<cv::Point, cv::Point>> cv_fitting_base_pts_;
-	std::vector<std::vector<cv::Point>> cv_fitting_base_pts_list_;
+	//std::vector<std::vector<cv::Point>> cv_fitting_base_pts_list_;
+	std::map<cv::Point, std::vector<cv::Point>, CV_LESS_COMPARE> cv_fitting_base_pts_map_;
 	//
 	void prepare_voronoi_edges();
 	void prepare_fitted_edges();
 	void prepare_fitting_base_pts();
+	void prepare_dual_edges();
 };
 
 #endif

@@ -72,6 +72,12 @@ int main()
 		Point_2 p(img_data->GetSolidSkeleton()[i].x, img_data->GetSolidSkeleton()[i].y);
 		P.push_back(p);
 	}
+	std::vector<Point_2> Q;
+	for (int i = 0; i < img_data->GetVoidSkeleton().size(); i++)
+	{
+		Point_2 q(img_data->GetVoidSkeleton()[i].x, img_data->GetVoidSkeleton()[i].y);
+		Q.push_back(q);
+	}
 
 	/*----------------------------------------------*/
 	//Step 3: Two-step Optimization Loop
@@ -81,9 +87,13 @@ int main()
 
 	CReconstructor reconstructor;
 	reconstructor.SetBBox(width, height);
+
+	std::cout << "number of pts to be reconstructed " << P.size() << std::endl;
 	reconstructor.SetReconstructionPts(P);
 
 	CMeshOptimizer meshOptimizer;
+	meshOptimizer.SetConstraintPts(Q);
+
 	do {
 		std::cout << "#VoroSites: " << X.size() << std::endl;
 		
@@ -94,15 +104,14 @@ int main()
 		std::cout << "Reconstruction" << std::endl;
 		//Step 3.1: D <-- Reconstructor(P, D)
 		reconstructor.Update(pVD);
+		// get reconstruction accuracy
+		std::cout << "Reconstruction error: " << reconstructor.GetReconstructionError() << std::endl;
 
 		std::cout << "Mesh Optimization" << std::endl;
 		//Step 3.2: Xnew <-- MeshOptimizer(D, X)
 		std::vector<WPoint> Xold = X;
-		//meshOptimizer.Update(pVD, X);
+		meshOptimizer.Update(pVD, X);
 
-		//Step 3.3: compute error
-		// get reconstruction accuracy
-		std::cout << "Reconstruction error: " << reconstructor.GetAccuracy() << std::endl;
 
 		for (int i = 0; i < X.size(); i++)
 		{
@@ -129,8 +138,9 @@ int main()
 	vd_drawer->SetVD(pVD);
 	CCVWindow cvWin;
 	cvWin.SetVoronoiDrawer(vd_drawer);
-	cvWin.ShowUpdatedVoronoiDiagram(0);
 	cvWin.ShowReconstructionPointClusters(rp_list, rp_label_list, 0);
+	cvWin.ShowUpdatedVoronoiDiagram(0);
+
 
 	return EXIT_SUCCESS;
 }

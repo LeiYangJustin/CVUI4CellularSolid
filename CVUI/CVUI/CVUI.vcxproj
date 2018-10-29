@@ -137,20 +137,21 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWSCGAL_USE_MPFR;CGAL_USE_GMP;CGAL_EIGEN3_ENABLED;NANOGUI_SHARED;NVG_SHARED;GLAD_GLAPI_EXPORT;NANOGUI_GLAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\CodingFacilities\nanogui\ext\glad\include;D:\CodingFacilities\nanogui\ext\glfw\include;D:\CodingFacilities\nanogui\ext\nanovg\src;D:\CodingFacilities\nanogui\include;D:\CodingFacilities\nanogui\build;$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;$(BOOST_INCLUDEDIR);$(EIGEN_ROOT);$(OPENCV_DIR)\install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWSCGAL_USE_MPFR;CGAL_USE_GMP;CGAL_EIGEN3_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;$(BOOST_INCLUDEDIR);$(EIGEN_ROOT);$(OPENCV_DIR)\install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(OPENCV_DIR)\lib\Release;$(OPENCV_DIR)\bin\Release;$(CGAL12)\build\lib;$(CGAL12)\auxiliary\gmp\lib;D:\CodingFacilities\nanogui\build\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DataColle.lib;AlgColle.lib;opencv_core400.lib;opencv_highgui400.lib;opencv_imgcodecs400.lib;opencv_imgproc400.lib;CGAL-vc140-mt-4.12.lib;CGAL_ImageIO-vc140-mt-4.12.lib;CGAL_Core-vc140-mt-4.12.lib;libmpfr-4.lib;libgmp-10.lib;nanogui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(OPENCV_DIR)\lib\Release;$(OPENCV_DIR)\bin\Release;$(CGAL12)\build\lib;$(CGAL12)\auxiliary\gmp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DataColle.lib;AlgColle.lib;opencv_core400.lib;opencv_highgui400.lib;opencv_imgcodecs400.lib;opencv_imgproc400.lib;CGAL-vc140-mt-4.12.lib;CGAL_ImageIO-vc140-mt-4.12.lib;CGAL_Core-vc140-mt-4.12.lib;libmpfr-4.lib;libgmp-10.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cv_window.h" />
+    <ClInclude Include="cv_compare.h" />
     <ClInclude Include="voronoi_drawer.h" />
   </ItemGroup>
   <ItemGroup>

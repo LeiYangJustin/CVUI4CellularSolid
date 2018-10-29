@@ -40,7 +40,8 @@ public:
 
 	void GetCroppedVoronoiSegments(Iso_rectangle_2 bbox, std::vector<Segment_2> &voronoi_segments);
 	void GetFittedSegments(std::vector<Segment_2> &fitting_segments);
-	void GetFittingBasePts(std::vector<std::vector<Point_2>> &fitting_base_pts);
+	void GetDualEdges(std::vector<Segment_2> &dual_edges);
+	void GetFittingBasePtsMap(std::map<Point_2, std::vector<Point_2>> &fitting_base_pts_map);
 private:
 	// a VD kernel from CGAL 2D diagram
 	Regular_triangulation* rt_;

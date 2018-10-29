@@ -44,39 +44,31 @@ void CVoronoiDrawer::prepare_fitted_edges()
 
 void CVoronoiDrawer::prepare_fitting_base_pts()
 {
-	std::vector<std::vector<Point_2>> fitting_base_pts;
-	pVD_->GetFittingBasePts(fitting_base_pts);
+	std::map<Point_2, std::vector<Point_2>> fitting_base_pts_map;
+	pVD_->GetFittingBasePtsMap(fitting_base_pts_map);
 
-	cv_fitting_base_pts_list_.clear();
-	for (int i = 0; i < fitting_base_pts.size(); i++)
+	cv_fitting_base_pts_map_.clear();
+	for (auto miter = fitting_base_pts_map.begin(); miter != fitting_base_pts_map.end(); ++miter)
 	{
-		std::vector<cv::Point> tmplist;
-		for (int j = 1; j < fitting_base_pts[i].size(); j++)
-		{
-			cv::Point cvp1 = convert_to_cvPoint(fitting_base_pts[i][j]);
-			tmplist.push_back(cvp1);
-		}
-		cv_fitting_base_pts_list_.push_back(tmplist);
+		std::vector<cv::Point> tmpVec;
+		for (int i = 0; i < miter->second.size(); i++)
+			tmpVec.push_back(convert_to_cvPoint(miter->second[i]));
+		cv_fitting_base_pts_map_.insert(std::make_pair(convert_to_cvPoint(miter->first), tmpVec));
 	}
-	
+}
 
-	//cv_fitting_base_pts_.clear();
-	//for (int i = 0; i < fitting_base_pts.size(); i++)
-	//{
-	//	if (fitting_base_pts[i].size() == 1) {
-	//		cv::Point cvp1 = convert_to_cvPoint(fitting_base_pts[i].front());
-	//		cv::Point cvp2 = convert_to_cvPoint(fitting_base_pts[i].front());
-	//		cv_fitting_base_pts_.push_back(std::make_pair(cvp1, cvp2));
-	//	}
-	//	else {
-	//		for (int j = 1; j < fitting_base_pts[i].size(); j++)
-	//		{
-	//			cv::Point cvp1 = convert_to_cvPoint(fitting_base_pts[i][j]);
-	//			cv::Point cvp2 = convert_to_cvPoint(fitting_base_pts[i][j-1]);
-	//			cv_fitting_base_pts_.push_back(std::make_pair(cvp1, cvp2));
-	//		}
-	//	}
-	//}
+void CVoronoiDrawer::prepare_dual_edges()
+{
+	std::vector<Segment_2> dual_edges;
+	pVD_->GetDualEdges(dual_edges);
+
+	cv_dual_edges_.clear();
+	for (int i = 0; i < dual_edges.size(); i++)
+	{
+		cv::Point cvp1 = convert_to_cvPoint(dual_edges[i].source());
+		cv::Point cvp2 = convert_to_cvPoint(dual_edges[i].target());
+		cv_dual_edges_.push_back(std::make_pair(cvp1, cvp2));
+	}
 }
 
 void CVoronoiDrawer::SetVD(CVoronoiDiagram* pVD)
@@ -84,7 +76,8 @@ void CVoronoiDrawer::SetVD(CVoronoiDiagram* pVD)
 	pVD_ = pVD;
 	prepare_fitted_edges();
 	prepare_voronoi_edges();
-	prepare_fitting_base_pts();
+	prepare_dual_edges();
+	//prepare_fitting_base_pts();
 }
 
 void CVoronoiDrawer::SetImgData(CImgData* p_img_data)

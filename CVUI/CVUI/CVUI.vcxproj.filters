@@ -21,6 +21,9 @@
     <ClInclude Include="voronoi_drawer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="cv_compare.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cv_window.cpp">

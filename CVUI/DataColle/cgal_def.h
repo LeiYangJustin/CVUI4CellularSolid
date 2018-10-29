@@ -32,10 +32,10 @@ typedef K::Line_2 Line_2;
 //	double dist_;
 //};
 
-//typedef CGAL::Triangulation_vertex_base_with_info_2<std::vector<Point_2>, K> VbI;
+typedef CGAL::Triangulation_vertex_base_with_info_2<std::pair<Point_2, double>, K> VbI;
 typedef CGAL::Triangulation_face_base_with_info_2<std::vector<Point_2>, K> FbI;
 
-typedef CGAL::Regular_triangulation_vertex_base_2<K> RT_Vb;
+typedef CGAL::Regular_triangulation_vertex_base_2<K, VbI> RT_Vb;
 typedef CGAL::Regular_triangulation_face_base_2<K, FbI> RT_FbI;
 typedef CGAL::Triangulation_data_structure_2<RT_Vb, RT_FbI> Tds;
 

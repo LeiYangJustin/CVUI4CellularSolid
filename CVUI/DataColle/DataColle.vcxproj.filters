@@ -27,6 +27,9 @@
     <ClInclude Include="img_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="reconstruction_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="voronoi_diagram.cpp">

@@ -13,6 +13,8 @@
 #include "voronoi_drawer.h"
 #include "../DataColle/voronoi_diagram.h"
 
+#include "cv_compare.h"
+
 struct cv_color_palette {
 	cv::Scalar color_0 = cv::Scalar(13, 177, 240);
 	cv::Scalar color_1 = cv::Scalar(115, 227, 9);
@@ -25,6 +27,9 @@ struct cv_color_palette {
 	cv::Scalar color_8 = cv::Scalar(56, 107, 48);
 	cv::Scalar color_9 = cv::Scalar(236, 45, 74);
 	cv::Scalar color_default = cv::Scalar(255, 0, 0);
+	cv::Scalar color_blue = cv::Scalar(255, 0, 0);
+	cv::Scalar color_green = cv::Scalar(0, 255, 0);
+	cv::Scalar color_red = cv::Scalar(0, 0, 255);
 };
 
 class CCVWindow
@@ -47,18 +52,8 @@ public:
 
 	// show the reconstruction points in terms of their clusters
 	void ShowReconstructionPointClusters(std::vector<Point_2> rp_list, std::vector<int> rp_label_list, int elapseTime);
-	
-	//// detect mouse click that indicates adding voronoi site
-	//// return a flag to indicate the mouse event
-	//int getMouseClick(int &x, int &y);
 
 private:
-	//// source image
-	//cv::Mat src_img_;
-
-	//// source image with overlayed voronoi segments
-	//cv::Mat draw_;
-
 	// view size
 	int width_;
 	int height_;
@@ -68,18 +63,13 @@ private:
 	int timeElapse_;
 
 	// VD drawer
-	//CVoronoiDrawer voro_drawer_;
 	CVoronoiDrawer* p_voro_drawer_;
 
 	void drawSkeleton(int elapseTime, bool is_overlay = true);
-
-	//// static functions
-	//static void CCVWindow::on_mouse(int event, int x, int y, int flags, void * userdata);
-	//static void CCVWindow::on_trackbar(int, void *);
-
 	void drawLine(cv::Mat & img, cv::Point p1, cv::Point p2, int label, int lw = 1);
 	void drawPolyLine(cv::Mat & img, std::vector<cv::Point> plist, int label, int lw = 1);
 	cv::Point convert_to_cvPoint(Point_2);
+	Point_2 convert_to_Point_2(cv::Point);
 };
 
 
