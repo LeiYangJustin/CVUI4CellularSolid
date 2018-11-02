@@ -10,13 +10,8 @@ CVoronoiDrawer::~CVoronoiDrawer()
 
 void CVoronoiDrawer::prepare_voronoi_edges()
 {
-	//
-	int w, h;
-	p_img_data_->GetBoundingDomain(w, h);
-
-	//
 	std::vector<Segment_2> voronoi_segments;
-	pVD_->GetCroppedVoronoiSegments(Iso_rectangle_2(0, 0, w, h), voronoi_segments);
+	pVD_->GetCroppedVoronoiSegments(voronoi_segments);
 
 	//
 	cv_voronoi_edges_.clear();
@@ -25,6 +20,21 @@ void CVoronoiDrawer::prepare_voronoi_edges()
 		cv::Point cvp1 = convert_to_cvPoint(voronoi_segments[i].source());
 		cv::Point cvp2 = convert_to_cvPoint(voronoi_segments[i].target());
 		cv_voronoi_edges_.push_back(std::make_pair(cvp1, cvp2));
+	}
+}
+
+void CVoronoiDrawer::prepare_triangulation_edges()
+{
+	std::vector<Segment_2> triangulation_edges;
+	pVD_->GetCroppedTriangulatedSegments(triangulation_edges);
+
+	//
+	cv_triangulation_edges_.clear();
+	for (int i = 0; i < triangulation_edges.size(); i++)
+	{
+		cv::Point cvp1 = convert_to_cvPoint(triangulation_edges[i].source());
+		cv::Point cvp2 = convert_to_cvPoint(triangulation_edges[i].target());
+		cv_triangulation_edges_.push_back(std::make_pair(cvp1, cvp2));
 	}
 }
 
@@ -77,6 +87,7 @@ void CVoronoiDrawer::SetVD(CVoronoiDiagram* pVD)
 	prepare_fitted_edges();
 	prepare_voronoi_edges();
 	prepare_dual_edges();
+	prepare_triangulation_edges();
 	//prepare_fitting_base_pts();
 }
 

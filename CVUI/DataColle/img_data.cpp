@@ -60,6 +60,40 @@ void CImgData::binarize_src_img()
 	cv::blur(grayExplImg, solid_img_, cv::Size(3, 3));
 	cv::threshold(solid_img_, solid_img_, 50, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
 	cv::bitwise_not(solid_img_, void_img_);
+	//
+	background_img_ = solid_img_;
+}
+
+void CImgData::make_background()
+{
+	std::vector<cv::Mat> channels(3);
+	cv::Mat chnl2 = this->GetSolidImg().clone();
+	cv::Mat chnl1 = this->GetSolidImg().clone();
+	cv::Mat chnl0 = this->GetSolidImg().clone();
+
+	////
+	//cv::subtract(chnl0, skelImg_secondary_, chnl0);
+	//cv::subtract(chnl2, skelImg_secondary_, chnl2);
+	//cv::add(chnl1, skelImg_secondary_, chnl1);
+
+	// 
+	cv::Mat solidSkeletonImg;
+	this->GetSolidSkeletonImg(solidSkeletonImg);
+	cv::subtract(chnl0, solidSkeletonImg, chnl0);
+	cv::subtract(chnl2, solidSkeletonImg, chnl2);
+	cv::add(chnl1, solidSkeletonImg, chnl1);
+
+	//
+	cv::Mat voidSkeletonImg;
+	this->GetVoidSkeletonImg(voidSkeletonImg);
+	cv::subtract(chnl0, voidSkeletonImg, chnl0);
+	cv::subtract(chnl1, voidSkeletonImg, chnl1);
+	cv::add(chnl2, voidSkeletonImg, chnl2);
+
+	channels[2] = chnl2.clone(); // r
+	channels[1] = chnl1.clone(); // g
+	channels[0] = chnl0.clone(); // b
+	cv::merge(channels, background_img_);
 }
 
 void CImgData::convert_skeleton_to_img(bool is_solid, cv::Mat & img)

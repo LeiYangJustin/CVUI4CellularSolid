@@ -29,7 +29,7 @@ private:
 
 	// extraction of skeleton from a given image
 	void extract_morphological_skeleton(bool is_solid);
-	void get_CVPoints_from_bwImg(cv::Mat bwImg, std::vector<cv::Point> &pts);
+	void get_CVPoints_from_bwImg(cv::Mat bwImg, std::vector<cv::Point> &pts, bool use_boundary = true);
 
 	// sampling
 	int flood_fill_sampling(cv::Mat binaryGuide, std::vector<cv::Point> &samples, int radius = 10);

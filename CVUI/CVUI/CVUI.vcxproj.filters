@@ -15,24 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cv_window.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="voronoi_drawer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="cv_compare.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="reader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="cv_viewer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cv_window.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="voronoi_drawer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="reader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="cv_viewer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

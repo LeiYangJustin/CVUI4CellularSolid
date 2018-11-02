@@ -50,6 +50,9 @@ public:
 	// show the voronoi diagram (actually its segments) in the window
 	void ShowUpdatedVoronoiDiagram(int elapseTime);
 
+	// show the regular triangulation (actually its segments) in the window
+	void ShowUpdatedRegularTriangulation(int elapseTime);
+
 	// show the reconstruction points in terms of their clusters
 	void ShowReconstructionPointClusters(std::vector<Point_2> rp_list, std::vector<int> rp_label_list, int elapseTime);
 
@@ -65,7 +68,6 @@ private:
 	// VD drawer
 	CVoronoiDrawer* p_voro_drawer_;
 
-	void drawSkeleton(int elapseTime, bool is_overlay = true);
 	void drawLine(cv::Mat & img, cv::Point p1, cv::Point p2, int label, int lw = 1);
 	void drawPolyLine(cv::Mat & img, std::vector<cv::Point> plist, int label, int lw = 1);
 	cv::Point convert_to_cvPoint(Point_2);

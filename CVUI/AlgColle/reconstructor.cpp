@@ -2,8 +2,8 @@
 #include <map>
 #include <queue>
 #include "../AlgColle/geo_calculator.h"
-CReconstructor::CReconstructor() :
-	reconstruction_error_(0.0)
+
+CReconstructor::CReconstructor() : reconstruction_error_(0.0)
 {
 }
 
@@ -47,8 +47,14 @@ void CReconstructor::Update(CVoronoiDiagram * pVD)
 	Regular_triangulation* rt = pVD->getTriangulation();
 	// get voronoi segments
 	std::vector<Segment_2> voronoi_segments;
-	pVD->GetCroppedVoronoiSegments(Iso_rectangle_2(0,0,width_,height_), voronoi_segments);
+	pVD->GetCroppedVoronoiSegments(voronoi_segments);
 	//pVD->GetDualEdges(voronoi_segments);
+
+
+	for (auto rp_iter = reconPointList_.begin(); rp_iter != reconPointList_.end(); ++rp_iter)
+	{
+		rp_iter->SetLabelDist(-1, 100);
+	}
 
 	// Initialize the recon_edge_list with voronoi edges
 	// assign label and distance to each reconstruction point
@@ -62,6 +68,8 @@ void CReconstructor::Update(CVoronoiDiagram * pVD)
 		reconEdge.set_voronoi_edge(voronoi_segments[i]);
 		recon_edge_list.push_back(reconEdge);
 	}
+	//std::cout << "so far so good" << std::endl;
+
 	std::map<int, std::vector<CReconstructionPoint>> map_lid_to_rps;
 	for (auto rp_iter = reconPointList_.begin(); rp_iter != reconPointList_.end(); ++rp_iter)
 	{
@@ -119,9 +127,15 @@ void CReconstructor::Update(CVoronoiDiagram * pVD)
 	// Iteratively to add orphan pts to the existing fitting model
 	std::cout << "orphan_rpts_queue_size before: " << orphan_rpts_queue.size() << std::endl;
 	int orphan_rpts_queue_size =  orphan_rpts_queue.size();
-	int maxIter = 3 * orphan_rpts_queue_size;
+#ifdef _DEBUG
+	int maxIter = orphan_rpts_queue_size+500;
+	std::cout << "We are in the debugging mode" << std::endl;
+#else 
+	int maxIter = 1.5 * orphan_rpts_queue_size;
+#endif
 	while(--maxIter && !orphan_rpts_queue.empty())
 	{
+		//std::cout << maxIter << std::endl;
 		CReconstructionPoint rc_pt(orphan_rpts_queue.front().point_);
 		orphan_rpts_queue.pop();
 		for (auto viter = recon_edge_list.begin(); viter != recon_edge_list.end(); ++viter)
@@ -229,7 +243,7 @@ void CReconstructor::Update2(CVoronoiDiagram * pVD)
 	// get voronoi segments
 	Regular_triangulation* rt = pVD->getTriangulation();
 	std::vector<Segment_2> voronoi_segments;
-	pVD->GetCroppedVoronoiSegments(Iso_rectangle_2(0, 0, width_, height_), voronoi_segments);
+	pVD->GetCroppedVoronoiSegments(voronoi_segments);
 
 	// STEP 2
 	// assign label and distance to each reconstruction point

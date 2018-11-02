@@ -5,6 +5,8 @@
 #include <set>
 #include "../DataColle/voronoi_diagram.h"
 #include "algprereq.h"
+
+// ???
 #include "../DataColle/reconstruction_data.h"
 
 class ALGCOLLE_CLASS CReconstructor

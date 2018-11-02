@@ -261,11 +261,6 @@ void CCVWindow::SetWindowParameters(char * winName, int timeElapse)
 	timeElapse_ = timeElapse;
 }
 
-void CCVWindow::ShowUpdatedVoronoiDiagram(int elapseTime)
-{
-	drawSkeleton(elapseTime*1000 /*make it miliseconds*/);
-}
-
 void CCVWindow::ShowReconstructionPointClusters(std::vector<Point_2> rp_list, std::vector<int> rp_label_list, int elapseTime)
 {
 	// draw the background
@@ -298,18 +293,18 @@ void CCVWindow::ShowReconstructionPointClusters(std::vector<Point_2> rp_list, st
 
 	std::vector<std::pair<cv::Point, cv::Point>> cv_voronoi_edges = p_voro_drawer_->GetVoronoiEdges();
 
-	for (auto miter = map_lid_to_rplist.begin(); miter != map_lid_to_rplist.end(); ++miter)
-	{
-		if (miter->first == -1)
-			continue;
-		if (miter->first % 1 == 0)
-		{
-			drawPolyLine(result_img, miter->second, miter->first, 1);
-			drawLine(result_img,
-				cv_voronoi_edges[miter->first].first, cv_voronoi_edges[miter->first].second,
-				miter->first, 2);
-		}
-	}
+	//for (auto miter = map_lid_to_rplist.begin(); miter != map_lid_to_rplist.end(); ++miter)
+	//{
+	//	if (miter->first == -1)
+	//		continue;
+	//	if (miter->first % 1 == 0)
+	//	{
+	//		drawPolyLine(result_img, miter->second, miter->first, 1);
+	//		drawLine(result_img,
+	//			cv_voronoi_edges[miter->first].first, cv_voronoi_edges[miter->first].second,
+	//			miter->first, 2);
+	//	}
+	//}
 
 	//for (int i = 0; i < cv_voronoi_edges.size(); i++)
 	//{
@@ -318,12 +313,12 @@ void CCVWindow::ShowReconstructionPointClusters(std::vector<Point_2> rp_list, st
 	//		i, 2);
 	//}
 
-	//for (int i = 0; i < rp_list.size(); i++)
-	//{
-	//	drawLine(result_img,
-	//		cv::Point(rp_list[i].x(), rp_list[i].y()), cv::Point(rp_list[i].x(), rp_list[i].y()),
-	//		rp_label_list[i]);
-	//}
+	for (int i = 0; i < rp_list.size(); i++)
+	{
+		drawLine(result_img,
+			cv::Point(rp_list[i].x(), rp_list[i].y()), cv::Point(rp_list[i].x(), rp_list[i].y()),
+			rp_label_list[i], 2);
+	}
 	
 	std::string winname = "Reconstruction";
 	cv::namedWindow(winname, cv::WINDOW_AUTOSIZE);
@@ -345,46 +340,44 @@ void CCVWindow::ShowReconstructionPointClusters(std::vector<Point_2> rp_list, st
 	//cv::destroyAllWindows();
 }
 
-void CCVWindow::drawSkeleton(int elapseTime, bool is_overlay)
+void CCVWindow::ShowUpdatedVoronoiDiagram(int elapseTime)
 {
 	// draw the background
 	CImgData* p_img_data = p_voro_drawer_->GetImgData();
 	// OVERLAY IMAGE
 	cv::Mat overlayImg(p_img_data->GetSolidImg().size(), CV_8UC3, cv::Scalar(0, 0, 0));
-	if (is_overlay) 
-	{
-		std::vector<cv::Mat> channels(3);
-		cv::Mat chnl2 = p_img_data->GetSolidImg().clone();
-		cv::Mat chnl1 = p_img_data->GetSolidImg().clone();
-		cv::Mat chnl0 = p_img_data->GetSolidImg().clone();
 
-		////
-		//cv::subtract(chnl0, skelImg_secondary_, chnl0);
-		//cv::subtract(chnl2, skelImg_secondary_, chnl2);
-		//cv::add(chnl1, skelImg_secondary_, chnl1);
+	std::vector<cv::Mat> channels(3);
+	cv::Mat chnl2 = p_img_data->GetSolidImg().clone();
+	cv::Mat chnl1 = p_img_data->GetSolidImg().clone();
+	cv::Mat chnl0 = p_img_data->GetSolidImg().clone();
 
-		// 
-		cv::Mat solidSkeletonImg;
-		p_img_data->GetSolidSkeletonImg(solidSkeletonImg);
-		cv::subtract(chnl0, solidSkeletonImg, chnl0);
-		cv::subtract(chnl2, solidSkeletonImg, chnl2);
-		cv::add(chnl1, solidSkeletonImg, chnl1);
+	////
+	//cv::subtract(chnl0, skelImg_secondary_, chnl0);
+	//cv::subtract(chnl2, skelImg_secondary_, chnl2);
+	//cv::add(chnl1, skelImg_secondary_, chnl1);
 
-		//
-		cv::Mat voidSkeletonImg;
-		p_img_data->GetVoidSkeletonImg(voidSkeletonImg);
-		cv::subtract(chnl0, voidSkeletonImg, chnl0);
-		cv::subtract(chnl1, voidSkeletonImg, chnl1);
-		cv::add(chnl2, voidSkeletonImg, chnl2);
+	// 
+	cv::Mat solidSkeletonImg;
+	p_img_data->GetSolidSkeletonImg(solidSkeletonImg);
+	cv::subtract(chnl0, solidSkeletonImg, chnl0);
+	cv::subtract(chnl2, solidSkeletonImg, chnl2);
+	cv::add(chnl1, solidSkeletonImg, chnl1);
 
-		channels[2] = chnl2.clone(); // r
-		channels[1] = chnl1.clone(); // g
-		channels[0] = chnl0.clone(); // b
-		cv::merge(channels, overlayImg);
+	//
+	cv::Mat voidSkeletonImg;
+	p_img_data->GetVoidSkeletonImg(voidSkeletonImg);
+	cv::subtract(chnl0, voidSkeletonImg, chnl0);
+	cv::subtract(chnl1, voidSkeletonImg, chnl1);
+	cv::add(chnl2, voidSkeletonImg, chnl2);
 
-		cv::imshow("material with two skeletons", overlayImg);
-		cv::waitKey(5);
-	}
+	channels[2] = chnl2.clone(); // r
+	channels[1] = chnl1.clone(); // g
+	channels[0] = chnl0.clone(); // b
+	cv::merge(channels, overlayImg);
+
+	cv::imshow("material with two skeletons", overlayImg);
+	cv::waitKey(5);
 
 	// draw voronoi edges
 	std::vector<std::pair<cv::Point, cv::Point>> voronoi_edges;
@@ -393,20 +386,27 @@ void CCVWindow::drawSkeleton(int elapseTime, bool is_overlay)
 		//cv::line(overlayImg, voronoi_edges[i].first, voronoi_edges[i].second, cv::Scalar(255, 0, 0), 2, 2);
 		drawLine(overlayImg, voronoi_edges[i].first, voronoi_edges[i].second, -1, 1);
 	}
-
-	// draw fitted edges
-	std::vector<std::pair<cv::Point, cv::Point>> fitted_edges;
-	fitted_edges = p_voro_drawer_->GetFittedEdges();
-	//fitted_edges = p_voro_drawer_->GetDualEdges();
-	for (int i = 0; i < fitted_edges.size(); i++) {
-		//cv::line(overlayImg, fitted_edges[i].first, fitted_edges[i].second, cv::Scalar(0, 255, 0), 4, 4);
-		drawLine(overlayImg, fitted_edges[i].first, fitted_edges[i].second, -2, 2);
+	// draw voronoi edges
+	std::vector<std::pair<cv::Point, cv::Point>> traingulate_edges;
+	traingulate_edges = p_voro_drawer_->GetTriangulationEdges();
+	for (int i = 0; i < traingulate_edges.size(); i++) {
+		//cv::line(overlayImg, voronoi_edges[i].first, voronoi_edges[i].second, cv::Scalar(255, 0, 0), 2, 2);
+		drawLine(overlayImg, traingulate_edges[i].first, traingulate_edges[i].second, 2, 1);
 	}
+
+	//// draw fitted edges
+	//std::vector<std::pair<cv::Point, cv::Point>> fitted_edges;
+	//fitted_edges = p_voro_drawer_->GetFittedEdges();
+	////fitted_edges = p_voro_drawer_->GetDualEdges();
+	//for (int i = 0; i < fitted_edges.size(); i++) {
+	//	//cv::line(overlayImg, fitted_edges[i].first, fitted_edges[i].second, cv::Scalar(0, 255, 0), 4, 4);
+	//	drawLine(overlayImg, fitted_edges[i].first, fitted_edges[i].second, -2, 2);
+	//}
 
 	cv::namedWindow(winName_);
 	//cv::namedWindow(winName_, cv::WINDOW_KEEPRATIO);
 	cv::imshow(winName_, overlayImg);
-	cv::waitKey(0);
+	cv::waitKey(elapseTime);
 
 	//CVoronoiDiagram* pVD = p_voro_drawer_->GetVD();
 
@@ -438,6 +438,58 @@ void CCVWindow::drawSkeleton(int elapseTime, bool is_overlay)
 	//	//printf("%s\n", fn_output);
 	//	//cv::imwrite(fn_output, overlayImg);
 	//}
+}
+
+void CCVWindow::ShowUpdatedRegularTriangulation(int elapseTime)
+{
+	// draw the background
+	CImgData* p_img_data = p_voro_drawer_->GetImgData();
+	// OVERLAY IMAGE
+	cv::Mat overlayImg(p_img_data->GetSolidImg().size(), CV_8UC3, cv::Scalar(0, 0, 0));
+
+	std::vector<cv::Mat> channels(3);
+	cv::Mat chnl2 = p_img_data->GetSolidImg().clone();
+	cv::Mat chnl1 = p_img_data->GetSolidImg().clone();
+	cv::Mat chnl0 = p_img_data->GetSolidImg().clone();
+
+	////
+	//cv::subtract(chnl0, skelImg_secondary_, chnl0);
+	//cv::subtract(chnl2, skelImg_secondary_, chnl2);
+	//cv::add(chnl1, skelImg_secondary_, chnl1);
+
+	// 
+	cv::Mat solidSkeletonImg;
+	p_img_data->GetSolidSkeletonImg(solidSkeletonImg);
+	cv::subtract(chnl0, solidSkeletonImg, chnl0);
+	cv::subtract(chnl2, solidSkeletonImg, chnl2);
+	cv::add(chnl1, solidSkeletonImg, chnl1);
+
+	//
+	cv::Mat voidSkeletonImg;
+	p_img_data->GetVoidSkeletonImg(voidSkeletonImg);
+	cv::subtract(chnl0, voidSkeletonImg, chnl0);
+	cv::subtract(chnl1, voidSkeletonImg, chnl1);
+	cv::add(chnl2, voidSkeletonImg, chnl2);
+
+	channels[2] = chnl2.clone(); // r
+	channels[1] = chnl1.clone(); // g
+	channels[0] = chnl0.clone(); // b
+	cv::merge(channels, overlayImg);
+
+	cv::imshow("material with two skeletons", overlayImg);
+	cv::waitKey(5);
+
+	// draw voronoi edges
+	std::vector<std::pair<cv::Point, cv::Point>> edges;
+	edges = p_voro_drawer_->GetTriangulationEdges();
+	for (int i = 0; i < edges.size(); i++) {
+		drawLine(overlayImg, edges[i].first, edges[i].second, -1, 1);
+	}
+
+	std::string winName = "Regular_Triangulation";
+	cv::namedWindow(winName);
+	cv::imshow(winName, overlayImg);
+	cv::waitKey(elapseTime);
 }
 
 void CCVWindow::drawLine(cv::Mat & img, cv::Point p1, cv::Point p2, int label, int lw)

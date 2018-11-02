@@ -32,7 +32,24 @@ typedef K::Line_2 Line_2;
 //	double dist_;
 //};
 
-typedef CGAL::Triangulation_vertex_base_with_info_2<std::pair<Point_2, double>, K> VbI;
+struct MyWPoint
+{
+	MyWPoint(Point_2 p, double w) : is_fixed_(false){ p_ = p; w_ = w; };
+	MyWPoint(Point_2 p, double w, bool is_fixed) {
+		p_ = p; w_ = w; is_fixed_ = is_fixed;
+	};
+	MyWPoint() {};
+	Point_2 point() { return p_; };
+	double weight() { return w_; };
+	bool is_fixed() { return is_fixed_; }
+
+private:
+	Point_2 p_;
+	double w_;
+	bool is_fixed_;
+};
+
+typedef CGAL::Triangulation_vertex_base_with_info_2<bool, K> VbI;
 typedef CGAL::Triangulation_face_base_with_info_2<std::vector<Point_2>, K> FbI;
 
 typedef CGAL::Regular_triangulation_vertex_base_2<K, VbI> RT_Vb;

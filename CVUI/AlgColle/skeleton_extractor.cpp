@@ -66,22 +66,33 @@ void CSkeletonExtractor::extract_morphological_skeleton(bool is_solid)
 	else {
 		skeleton_thinning(img, skelImg);
 	}
-
+	bool use_boundary = true;
 	if (is_solid) {
-		get_CVPoints_from_bwImg(skelImg, img_data_->GetSolidSkeleton());
+		get_CVPoints_from_bwImg(skelImg, img_data_->GetSolidSkeleton(), !use_boundary);
 	}
 	else {
-		get_CVPoints_from_bwImg(skelImg, img_data_->GetVoidSkeleton());
+		get_CVPoints_from_bwImg(skelImg, img_data_->GetVoidSkeleton(), use_boundary);
 	}		
 }
 
-void CSkeletonExtractor::get_CVPoints_from_bwImg(cv::Mat bwImg, std::vector<cv::Point>& pts)
+void CSkeletonExtractor::get_CVPoints_from_bwImg(cv::Mat bwImg, std::vector<cv::Point>& pts, bool use_boundary)
 {
 	pts.clear();
-	for (int c = 0; c < bwImg.cols; c++) {
-		for (int r = 0; r < bwImg.rows; r++) {
-			if (bwImg.at<uchar>(r, c) == 255) {
-				pts.push_back(cv::Point(c, r));
+	if (use_boundary) {
+		for (int c = 0; c < bwImg.cols; c++) {
+			for (int r = 0; r < bwImg.rows; r++) {
+				if (bwImg.at<uchar>(r, c) == 255) {
+					pts.push_back(cv::Point(c, r));
+				}
+			}
+		}
+	}
+	else {
+		for (int c = 1; c < bwImg.cols-1; c++) {
+			for (int r = 1; r < bwImg.rows-1; r++) {
+				if (bwImg.at<uchar>(r, c) == 255) {
+					pts.push_back(cv::Point(c, r));
+				}
 			}
 		}
 	}

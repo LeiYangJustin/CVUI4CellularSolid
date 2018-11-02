@@ -9,18 +9,112 @@
 #include <opencv2/opencv.hpp>
 
 //
+#include <CGAL/bounding_box.h>
+
+#define THRESHOLD 1.0
+#define MAXITER 2
+
+//
 #include "../DataColle/img_data.h"
 #include "../DataColle/voronoi_diagram.h"
 #include "../AlgColle/skeleton_extractor.h"
 #include "../AlgColle/reconstructor.h"
 #include "../AlgColle/mesh_optimizer.h"
-#include "cv_window.h"
+//#include "cv_window.h"
+#include "reader.h"
+#include "cv_viewer.h"
 
-// pre-defined parameters
-double Threshold = 1.0;
-double error = 100.0;
-int cntIter = 0;
-int MaxIter = 1;
+#ifdef TEST_MAIN
+
+//int main()
+//{
+//	std::vector<Point_2> pt_list;
+//	std::vector<bool> is_constrained_list;
+//	CReader::read_data_array_file("../data.txt", pt_list, is_constrained_list);
+//	std::vector<WPoint> X;
+//	double scale = 15;
+//	for (auto pt : pt_list) {
+//		pt = Point_2(0, 0) + scale*(pt - Point_2(0, 0));
+//		X.push_back(WPoint(pt, 0.0));
+//	}
+//
+//	Iso_rectangle_2 bbox = CGAL::bounding_box(pt_list.begin(), pt_list.end());
+//	Point_2 pmax = bbox.max();
+//
+//	/*----------------------------------------------*/
+//	//Step 3: Two-step Optimization Loop
+//	// declaration of the components
+//	std::cout << "#VoroSites: " << X.size() << std::endl;
+//	CVoronoiDiagram* pVD = new CVoronoiDiagram;
+//	pVD->SetSeedSites(X, is_constrained_list);
+//	pVD->SetBoundingBox(pmax.x()*scale, pmax.y()*scale);
+//
+//	CMeshOptimizer meshOptimizer;
+//
+//	std::vector<std::vector<Segment_2>> history_tria_edges;
+//	std::vector<std::vector<Segment_2>> history_voro_edges;
+//	do {
+//		std::cout << "Mesh Optimization" << std::endl;
+//		//Step 3.2: Xnew <-- MeshOptimizer(D, X)
+//		std::vector<WPoint> Xold = X;
+//		//meshOptimizer.Update(pVD, X);
+//		meshOptimizer.Update2(pVD, X);
+//		//std::copy(X.begin(), X.end(), std::ostream_iterator<WPoint>(std::cout, "\n"));
+//
+//		//Step 3.0: D <-- VoronoiDecomposer(X, Domain)
+//		std::cout << "UpdateTriangulation" << std::endl;
+//		pVD->UpdateTriangulation();
+//
+//		double error = 0.0;
+//		for (int i = 0; i < X.size(); i++)
+//		{
+//			Vector_2 tmpP = Xold[i].point() - X[i].point();
+//			double tmpW = Xold[i].weight() - X[i].weight();
+//			error += (tmpP.squared_length()) /*+ tmpW*tmpW*/;
+//		}
+//		error /= double(X.size());
+//		std::cout << "Loop: " << cntIter << ", " << error << std::endl;
+//		std::cout << std::endl;
+//
+//
+//		// PLOT
+//		std::vector<Segment_2> tria_edges, voro_edges;
+//		pVD->GetCroppedTriangulatedSegments(tria_edges);
+//		pVD->GetCroppedVoronoiSegments(voro_edges);
+//		history_tria_edges.push_back(tria_edges);
+//		history_voro_edges.push_back(voro_edges);
+//
+//
+//	} while (/*error > Threshold &&*/ ++cntIter < MAXITER);
+//	std::cout << "We are done here" << std::endl;
+//
+//
+//	CViewer viewer(pmax.x()*scale, pmax.y()*scale);
+//	for (int i = 0; i < cntIter; i++)
+//	{
+//		std::cout << "tria edges: " << std::endl;
+//		for (auto edge : history_tria_edges[i])
+//		{
+//			viewer.addSegment(edge, 2);
+//			std::cout << edge << std::endl;
+//		}
+//		std::cout << std::endl;
+//		std::cout << "voronoi edges: " << std::endl;
+//		for (auto edge : history_voro_edges[i])
+//		{
+//			viewer.addSegment(edge, 4);
+//			std::cout << edge << std::endl;
+//		}
+//		std::cout << std::endl;
+//		std::string winName = "Test";
+//		winName.append(std::to_string(i));
+//		viewer.draw(winName);
+//	}
+//
+//	return EXIT_SUCCESS;
+//}
+
+#else
 
 int main()
 {
@@ -31,116 +125,136 @@ int main()
 		return EXIT_FAILURE;
 
 #ifdef _DEBUG
-	int height = 401;
+	int height = 201;
 	std::cout << "We are in the debugging mode" << std::endl;
 #else 
 	int height = 401;
 #endif
-	// resize the image
 	int width = double(height) / double(src_img.rows)*double(src_img.cols);
 	cv::resize(src_img, src_img, cv::Size(width, height));
-
-	// set image data
 	CImgData* img_data = new CImgData(src_img);
 
-	/*----------------------------------------------*/
-	// Step 1: extraction of skeletons
+	// Extraction of skeletons
 	CSkeletonExtractor skeletonExtractor(img_data);
 	skeletonExtractor.getSolidSkeleton();
 	skeletonExtractor.getVoidSkeleton();
 	skeletonExtractor.getImgData(img_data);
-	/*----------------------------------------------*/
 
-	/*----------------------------------------------*/
-	//Step 2:
-	//initialize a set of X from set Q
+	// Initialization of the voronoi sites
 	std::vector<cv::Point> samples;
 	skeletonExtractor.getVoidSkeletonSamples(samples);
-	/*----------------------------------------------*/
-
-
-	// Data conversion from OPENCV to CGAL
-	std::vector<WPoint> X;
+	std::vector<WPoint> voro_seeds;
 	for (int i = 0; i < samples.size(); i++)
 	{
 		WPoint wp(samples[i].x, samples[i].y);
-		X.push_back(wp);
+		voro_seeds.push_back(wp);
 	}
-	std::vector<Point_2> P;
+	std::vector<Point_2> solid_skeletal_pts;
 	for (int i = 0; i < img_data->GetSolidSkeleton().size(); i++)
 	{
 		Point_2 p(img_data->GetSolidSkeleton()[i].x, img_data->GetSolidSkeleton()[i].y);
-		P.push_back(p);
+		solid_skeletal_pts.push_back(p);
 	}
-	std::vector<Point_2> Q;
+	std::vector<Point_2> void_skeletal_pts;
 	for (int i = 0; i < img_data->GetVoidSkeleton().size(); i++)
 	{
 		Point_2 q(img_data->GetVoidSkeleton()[i].x, img_data->GetVoidSkeleton()[i].y);
-		Q.push_back(q);
+		void_skeletal_pts.push_back(q);
 	}
-
-	/*----------------------------------------------*/
-	//Step 3: Two-step Optimization Loop
-	// declaration of the components
-	CVoronoiDiagram* pVD = new CVoronoiDiagram;
-	pVD->UpdateTriangulation(X);
-
+	// constraint label for boundary handling
+	std::vector<bool> is_constrained_list(voro_seeds.size(), false);
+	
+	//Step 3: Two-step Optimization Loop	
+	std::cout << "number of pts to be reconstructed " << solid_skeletal_pts.size() << std::endl;
 	CReconstructor reconstructor;
-	reconstructor.SetBBox(width, height);
+	reconstructor.SetReconstructionPts(solid_skeletal_pts);
 
-	std::cout << "number of pts to be reconstructed " << P.size() << std::endl;
-	reconstructor.SetReconstructionPts(P);
-
+	std::cout << "number of pts as constraint " << void_skeletal_pts.size() << std::endl;
 	CMeshOptimizer meshOptimizer;
-	meshOptimizer.SetConstraintPts(Q);
+	meshOptimizer.SetConstraintPts(void_skeletal_pts);
 
-	do {
-		std::cout << "#VoroSites: " << X.size() << std::endl;
-		
-		std::cout << "UpdateTriangulation" << std::endl;
+	std::vector<std::vector<Segment_2>> history_tria_edges;
+	std::vector<std::vector<Segment_2>> history_voro_edges;
+	int cntIter = 0;
+
+	CVoronoiDiagram* pVD = new CVoronoiDiagram;
+	pVD->SetBoundingBox(width, height);
+	//
+	do 
+	{
 		//Step 3.0: D <-- VoronoiDecomposer(X, Domain)
-		pVD->UpdateTriangulation(X);
-		
+		std::cout << "Build voronoi diagram with " << voro_seeds.size() << " of voronoi sites" << std::endl;
+		pVD->SetSeedSites(voro_seeds, is_constrained_list);
+
+		// data for plot
+		std::vector<Segment_2> tria_edges, voro_edges;
+		pVD->GetCroppedTriangulatedSegments(tria_edges);
+		std::cout << tria_edges.size() << std::endl;
+		pVD->GetCroppedVoronoiSegments(voro_edges);
+		std::cout << voro_edges.size() << std::endl;
+		history_tria_edges.push_back(tria_edges);
+		history_voro_edges.push_back(voro_edges);
+
+		//Step 3.1: PD <-- Reconstructor(S1, D)
 		std::cout << "Reconstruction" << std::endl;
-		//Step 3.1: D <-- Reconstructor(P, D)
 		reconstructor.Update(pVD);
-		// get reconstruction accuracy
 		std::cout << "Reconstruction error: " << reconstructor.GetReconstructionError() << std::endl;
 
-		std::cout << "Mesh Optimization" << std::endl;
+		//// data for plot
+		//std::vector<Point_2> rp_list;
+		//std::vector<int> rp_label_list;
+		//reconstructor.GetReconstructionPts(rp_list, rp_label_list);
+
 		//Step 3.2: Xnew <-- MeshOptimizer(D, X)
-		std::vector<WPoint> Xold = X;
-		meshOptimizer.Update(pVD, X);
+		std::cout << "Mesh Optimization" << std::endl;
+		std::vector<WPoint> old = voro_seeds;
+		meshOptimizer.Update2(pVD, voro_seeds);
 
-
-		for (int i = 0; i < X.size(); i++)
+		double error = 0.0;
+		for (int i = 0; i < voro_seeds.size(); i++)
 		{
-			Vector_2 tmpP = Xold[i].point() - X[i].point();
-			double tmpW = Xold[i].weight() - X[i].weight();
-			error += (tmpP.squared_length() + tmpW*tmpW);
+			Vector_2 tmpP = voro_seeds[i].point() - old[i].point();
+			double tmpW = voro_seeds[i].weight() - old[i].weight();
+			error += (tmpP.squared_length()) /*+ tmpW*tmpW*/;
+			//std::cout << tmpW << std::endl;
 		}
-		error /= double(X.size());
-		std::cout << cntIter << std::endl;
-	} while (error > Threshold || ++cntIter < MaxIter);
-	// Repeat until criteria met
+		error /= double(voro_seeds.size());
+		std::cout << "Loop = " << cntIter << "; averaged error = " << error << std::endl;
+		std::cout << std::endl;
+
+	} while (/*error > Threshold &&*/ ++cntIter < MAXITER);
 	std::cout << "We are done here" << std::endl;
 
-
-
-	// Test
-	std::vector<Point_2> rp_list;
-	std::vector<int> rp_label_list;
-	reconstructor.GetReconstructionPts(rp_list, rp_label_list);
-
 	// PLOT
-	CVoronoiDrawer* vd_drawer = new CVoronoiDrawer;
-	vd_drawer->SetImgData(img_data);
-	vd_drawer->SetVD(pVD);
-	CCVWindow cvWin;
-	cvWin.SetVoronoiDrawer(vd_drawer);
-	cvWin.ShowReconstructionPointClusters(rp_list, rp_label_list, 0);
-	cvWin.ShowUpdatedVoronoiDiagram(0);
+	CViewer viewer(*img_data);
+	for (int i = 0; i < cntIter; i++)
+	{
+		viewer.clearData();
 
+		//std::cout << "tria edges: " << std::endl;
+		for (auto edge : history_tria_edges[i])
+		{
+			viewer.addSegment(edge, 2);
+			//std::cout << edge << std::endl;
+		}
+		//std::cout << std::endl;
+		//std::cout << "voronoi edges: " << std::endl;
+		for (auto edge : history_voro_edges[i])
+		{
+			viewer.addSegment(edge, 7);
+			//std::cout << edge << std::endl;
+		}
+		//std::cout << std::endl;
+		std::string winName = "Test";
+		winName.append(std::to_string(i));
+		viewer.draw(winName);
+	}
+
+	// end
+	//delete pVD;
+	delete img_data;
 
 	return EXIT_SUCCESS;
 }
+
+#endif // TEST_MAIN

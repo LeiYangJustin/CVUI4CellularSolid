@@ -23,6 +23,7 @@ public:
 	cv::Mat GetVoidImg() { return void_img_; };
 	cv::Mat GetSolidImg() { return solid_img_; };
 	cv::Mat GetSrcImg() { return src_img_; };
+	cv::Mat GetBackgroundImage() { make_background(); return background_img_; };
 
 	void GetSolidSkeletonImg(cv::Mat &img) { convert_skeleton_to_img(true, img); };
 	void GetVoidSkeletonImg(cv::Mat &img) { convert_skeleton_to_img(false, img); };
@@ -40,12 +41,14 @@ private:
 	cv::Mat src_img_;
 	cv::Mat solid_img_;
 	cv::Mat void_img_;	
+	cv::Mat background_img_;
 	bool has_void_skeleton_;
 
 	std::vector<cv::Point> void_skeletal_pts_;
 	std::vector<cv::Point> solid_skeletal_pts_;
 
 	void binarize_src_img();
+	void make_background();
 	void convert_skeleton_to_img(bool is_solid, cv::Mat &img);
 };
 
