@@ -12,7 +12,7 @@
 #include <CGAL/bounding_box.h>
 
 #define THRESHOLD 1.0
-#define MAXITER 2
+#define MAXITER 3
 
 //
 #include "../DataColle/img_data.h"

@@ -76,6 +76,8 @@ void CMeshOptimizer::Update2(CVoronoiDiagram * vd, std::vector<WPoint>& X)
 
 void CMeshOptimizer::update_vertices()
 {
+	std::cout << "please also take into consideration the weight system in the vertex optimization step" << std::endl;
+
 	// use c and w to update v
 	typedef Regular_triangulation::Finite_vertices_iterator RT_Finite_Vertex_Iter;
 	typedef Regular_triangulation::Face_handle FaceHandle;
