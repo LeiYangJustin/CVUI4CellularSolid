@@ -37,6 +37,11 @@ public:
 	bool HasVoidSkeleton() { return has_void_skeleton_; };
 	void GetBoundingDomain(int & width, int & height);
 
+
+	void get_two_distance_transform_fields(int &rows, int &cols,
+		std::vector<double> &Sfield, std::vector<double> &Vfield);
+
+
 private:
 	cv::Mat src_img_;
 	cv::Mat solid_img_;

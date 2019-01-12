@@ -11,105 +11,128 @@
 //
 #include <CGAL/bounding_box.h>
 
+#define TEST_MAIN
 #define THRESHOLD 1.0
 #define MAXITER 3
 
 //
 #include "../DataColle/img_data.h"
-#include "../DataColle/voronoi_diagram.h"
 #include "../AlgColle/skeleton_extractor.h"
-#include "../AlgColle/reconstructor.h"
+
+//#include "../DataColle/voronoi_diagram.h"
+//#include "../AlgColle/reconstructor.h"
 #include "../AlgColle/mesh_optimizer.h"
+
+//#include "../AlgColle/mesh_solver.h"
 //#include "cv_window.h"
 #include "reader.h"
 #include "cv_viewer.h"
 
 #ifdef TEST_MAIN
 
+int main()
+{
+	// read some gray-scale image from the given path
+	std::string filename = "D:\\MyProjects\\CVUI4CellularSolid\\CVUI\\img_data\\example2.png";
+	cv::Mat src_img = cv::imread(filename);
+	if (src_img.data == NULL)
+		return EXIT_FAILURE;
+	
+#ifdef _DEBUG
+	int height = 201;
+	std::cout << "We are in the debugging mode" << std::endl;
+#else 
+	int height = 401;
+#endif
+
+	height = 201;
+	int width = double(height) / double(src_img.rows)*double(src_img.cols);
+	cv::resize(src_img, src_img, cv::Size(width, height));
+
+
+	
+	CImgData* img_data = new CImgData(src_img);
+
+	std::cout << "\n-compute distance field from image" << std::endl;
+	int rows, cols;
+	std::vector<double> solid_field, void_field;
+	img_data->get_two_distance_transform_fields(rows, cols, solid_field, void_field);
+	//img_data->get_two_distance_transform_fields(rows, cols, void_field, solid_field);
+
+
+	std::cout << "\n-optimize the triangulation" << std::endl;
+	CMeshOptimizer mesh_optimizer;
+	mesh_optimizer.background_setup(rows, cols, solid_field, void_field);
+ 	//mesh_optimizer.run_optimize_single_pt_as_test();
+	mesh_optimizer.run_optimize();
+
+	std::cout << "\n-output data" << std::endl;
+}
+
+//
 //int main()
 //{
-//	std::vector<Point_2> pt_list;
-//	std::vector<bool> is_constrained_list;
-//	CReader::read_data_array_file("../data.txt", pt_list, is_constrained_list);
-//	std::vector<WPoint> X;
-//	double scale = 15;
-//	for (auto pt : pt_list) {
-//		pt = Point_2(0, 0) + scale*(pt - Point_2(0, 0));
-//		X.push_back(WPoint(pt, 0.0));
-//	}
+//	// read some gray-scale image from the given path
+//	std::string filename = "D:\\MyProjects\\CVUI4CellularSolid\\CVUI\\img_data\\example7.png";
+//	cv::Mat src_img = cv::imread(filename);
+//	if (src_img.data == NULL)
+//		return EXIT_FAILURE;
 //
-//	Iso_rectangle_2 bbox = CGAL::bounding_box(pt_list.begin(), pt_list.end());
-//	Point_2 pmax = bbox.max();
+//#ifdef _DEBUG
+//	int height = 201;
+//	std::cout << "We are in the debugging mode" << std::endl;
+//#else 
+//	int height = 401;
+//#endif
+//	int width = double(height) / double(src_img.rows)*double(src_img.cols);
+//	cv::resize(src_img, src_img, cv::Size(width, height));
+//	CImgData* img_data = new CImgData(src_img);
 //
-//	/*----------------------------------------------*/
-//	//Step 3: Two-step Optimization Loop
-//	// declaration of the components
-//	std::cout << "#VoroSites: " << X.size() << std::endl;
-//	CVoronoiDiagram* pVD = new CVoronoiDiagram;
-//	pVD->SetSeedSites(X, is_constrained_list);
-//	pVD->SetBoundingBox(pmax.x()*scale, pmax.y()*scale);
+//	// Extraction of skeletons
+//	CSkeletonExtractor skeletonExtractor(img_data);
+//	skeletonExtractor.getSolidSkeleton();
+//	skeletonExtractor.getVoidSkeleton();
+//	skeletonExtractor.getImgData(img_data);
 //
-//	CMeshOptimizer meshOptimizer;
-//
-//	std::vector<std::vector<Segment_2>> history_tria_edges;
-//	std::vector<std::vector<Segment_2>> history_voro_edges;
-//	do {
-//		std::cout << "Mesh Optimization" << std::endl;
-//		//Step 3.2: Xnew <-- MeshOptimizer(D, X)
-//		std::vector<WPoint> Xold = X;
-//		//meshOptimizer.Update(pVD, X);
-//		meshOptimizer.Update2(pVD, X);
-//		//std::copy(X.begin(), X.end(), std::ostream_iterator<WPoint>(std::cout, "\n"));
-//
-//		//Step 3.0: D <-- VoronoiDecomposer(X, Domain)
-//		std::cout << "UpdateTriangulation" << std::endl;
-//		pVD->UpdateTriangulation();
-//
-//		double error = 0.0;
-//		for (int i = 0; i < X.size(); i++)
-//		{
-//			Vector_2 tmpP = Xold[i].point() - X[i].point();
-//			double tmpW = Xold[i].weight() - X[i].weight();
-//			error += (tmpP.squared_length()) /*+ tmpW*tmpW*/;
-//		}
-//		error /= double(X.size());
-//		std::cout << "Loop: " << cntIter << ", " << error << std::endl;
-//		std::cout << std::endl;
-//
-//
-//		// PLOT
-//		std::vector<Segment_2> tria_edges, voro_edges;
-//		pVD->GetCroppedTriangulatedSegments(tria_edges);
-//		pVD->GetCroppedVoronoiSegments(voro_edges);
-//		history_tria_edges.push_back(tria_edges);
-//		history_voro_edges.push_back(voro_edges);
-//
-//
-//	} while (/*error > Threshold &&*/ ++cntIter < MAXITER);
-//	std::cout << "We are done here" << std::endl;
-//
-//
-//	CViewer viewer(pmax.x()*scale, pmax.y()*scale);
-//	for (int i = 0; i < cntIter; i++)
+//	// Initialization of the voronoi sites
+//	std::vector<cv::Point> samples;
+//	skeletonExtractor.getVoidSkeletonSamples(samples);
+//	//std::vector<Point_2> voro_sites;
+//	std::vector<WPoint> voro_sites;
+//	for (int i = 0; i < samples.size(); i++)
 //	{
-//		std::cout << "tria edges: " << std::endl;
-//		for (auto edge : history_tria_edges[i])
-//		{
-//			viewer.addSegment(edge, 2);
-//			std::cout << edge << std::endl;
-//		}
-//		std::cout << std::endl;
-//		std::cout << "voronoi edges: " << std::endl;
-//		for (auto edge : history_voro_edges[i])
-//		{
-//			viewer.addSegment(edge, 4);
-//			std::cout << edge << std::endl;
-//		}
-//		std::cout << std::endl;
-//		std::string winName = "Test";
-//		winName.append(std::to_string(i));
-//		viewer.draw(winName);
+//		//voro_sites.push_back(Point_2(samples[i].x, samples[i].y));
+//		WPoint wp(Point_2(samples[i].x, samples[i].y), 1.0);
+//		voro_sites.push_back(wp);
 //	}
+//	std::set<Point_2> solid_skeletal_pts;
+//	for (int i = 0; i < img_data->GetSolidSkeleton().size(); i++)
+//	{
+//		Point_2 p(img_data->GetSolidSkeleton()[i].x, img_data->GetSolidSkeleton()[i].y);
+//		solid_skeletal_pts.insert(p);
+//	}
+//	std::set<Point_2> void_skeletal_pts;
+//	for (int i = 0; i < img_data->GetVoidSkeleton().size(); i++)
+//	{
+//		Point_2 q(img_data->GetVoidSkeleton()[i].x, img_data->GetVoidSkeleton()[i].y);
+//		void_skeletal_pts.insert(q);
+//	}
+//	Regular_triangulation *rt = new Regular_triangulation;
+//	rt->insert(voro_sites.begin(), voro_sites.end());
+//
+//	CMeshSolver mesh_solver;
+//	double tol = 0.5;
+//	int max_iter = 200;
+//	int every_x_step_to_update = 1;
+//	mesh_solver.optimize(solid_skeletal_pts, void_skeletal_pts, rt, tol, max_iter, every_x_step_to_update);
+//
+//	CReader::write_triangles_from_rt("data.tria", rt);
+//	CReader::write_faces_nearest("data.face_near", rt);
+//	CReader::write_vertices_nearest("data.vert_near", rt);
+//	CReader::write_pts("data.solid", solid_skeletal_pts);
+//	CReader::write_pts("data.void", void_skeletal_pts);
+//
+//	delete rt;
 //
 //	return EXIT_SUCCESS;
 //}

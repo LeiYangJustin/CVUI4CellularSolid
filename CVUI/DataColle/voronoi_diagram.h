@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include "cgal_def.h"
-
+#include "customized_tds.h"
 
 
 struct Cropped_voronoi_from_delaunay {

@@ -103,6 +103,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;ALGCOLLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(OPENCV_DIR)\install\include;$(EIGEN_ROOT);$(BOOST_INCLUDEDIR);$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,14 +152,14 @@
   <ItemGroup>
     <ClCompile Include="geo_calculator.cpp" />
     <ClCompile Include="mesh_optimizer.cpp" />
-    <ClCompile Include="reconstructor.cpp" />
+    <ClCompile Include="mesh_solver.cpp" />
     <ClCompile Include="skeleton_extractor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geo_calculator.h" />
     <ClInclude Include="mesh_optimizer.h" />
+    <ClInclude Include="mesh_solver.h" />
     <ClInclude Include="algprereq.h" />
-    <ClInclude Include="reconstructor.h" />
     <ClInclude Include="skeleton_extractor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

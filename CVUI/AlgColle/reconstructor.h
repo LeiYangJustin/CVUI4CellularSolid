@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <set>
-#include "../DataColle/voronoi_diagram.h"
+//#include "../DataColle/voronoi_diagram.h"
 #include "algprereq.h"
 
 // ???

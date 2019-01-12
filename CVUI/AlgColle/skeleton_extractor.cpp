@@ -32,6 +32,12 @@ void CSkeletonExtractor::getVoidSkeletonSamples(std::vector<cv::Point>& X)
 	cv::Mat void_skeleton_img;
 	img_data_->GetVoidSkeletonImg(void_skeleton_img);
 	flood_fill_sampling(void_skeleton_img, X, 30);
+
+	std::cout << "before merge " << X.size() << std::endl;
+
+	merge_close_samples(X, 30);
+
+	std::cout << "after merge " << X.size() << std::endl;
 }
 
 void CSkeletonExtractor::extract_morphological_skeleton(bool is_solid)
@@ -195,6 +201,30 @@ int CSkeletonExtractor::flood_fill_sampling(cv::Mat binaryGuide, std::vector<cv:
 	} while (cv::countNonZero(bw) > 0 && seeds.size() > 0);
 
 	return num_criticalPts;
+}
+
+void CSkeletonExtractor::merge_close_samples(std::vector<cv::Point>& samples, int radius)
+{
+
+	std::vector<cv::Point> merged_samples;
+	for (int i = 0; i+1 < samples.size(); i++)
+	{
+		double min_dist = 100000;
+		for (int j = 0; j < merged_samples.size(); j++)
+		{
+			double d = (samples[i].x - merged_samples[j].x)*(samples[i].x - merged_samples[j].x) +
+				(samples[i].y - merged_samples[j].y)*(samples[i].y - merged_samples[j].y);
+			if (min_dist > d)
+			{
+				min_dist = d;
+			}
+		}
+		if (min_dist > radius)
+		{
+			merged_samples.push_back(samples[i]);
+		}
+	}
+	samples = merged_samples;
 }
 
 void CSkeletonExtractor::find_critical_pts(cv::Mat binaryGuide, std::vector<cv::Point> skeleton, 

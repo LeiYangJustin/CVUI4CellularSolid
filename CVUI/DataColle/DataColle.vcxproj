@@ -151,13 +151,11 @@
   <ItemGroup>
     <ClInclude Include="cgal_def.h" />
     <ClInclude Include="dataprereq.h" />
+    <ClInclude Include="customized_tds.h" />
     <ClInclude Include="img_data.h" />
-    <ClInclude Include="reconstruction_data.h" />
-    <ClInclude Include="voronoi_diagram.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="img_data.cpp" />
-    <ClCompile Include="voronoi_diagram.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,23 +18,17 @@
     <ClInclude Include="cgal_def.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="voronoi_diagram.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dataprereq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="img_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="reconstruction_data.h">
+    <ClInclude Include="customized_tds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="voronoi_diagram.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="img_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

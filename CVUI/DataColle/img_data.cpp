@@ -52,6 +52,38 @@ void CImgData::GetBoundingDomain(int & width, int & height)
 	height = src_img_.rows;
 }
 
+void CImgData::get_two_distance_transform_fields(int &rows, int &cols,
+	std::vector<double> &Sfield, std::vector<double> &Vfield)
+{
+	//
+	cols = solid_img_.cols;
+	rows = solid_img_.rows;
+
+	//
+	cv::Mat solid_dist(solid_img_.size(), CV_32F);
+	cv::distanceTransform(solid_img_, solid_dist, cv::DIST_L2, cv::DIST_MASK_3);
+	Sfield.clear();
+	for (int ix = 0; ix < solid_dist.cols; ix++)
+	{
+		for (int iy = 0; iy < solid_dist.rows; iy++)
+		{
+			Sfield.push_back(-solid_dist.at<float>(iy, ix));
+		}
+	}
+
+	//
+	cv::Mat void_dist(void_img_.size(), CV_32F);
+	cv::distanceTransform(void_img_, void_dist, cv::DIST_L2, cv::DIST_MASK_5);
+	Vfield.clear();
+	for (int ix = 0; ix < void_dist.cols; ix++)
+	{
+		for (int iy = 0; iy < void_dist.rows; iy++)
+		{
+			Vfield.push_back(-void_dist.at<float>(iy, ix));
+		}
+	}
+}
+
 void CImgData::binarize_src_img()
 {
 	// BINARIZE THE EXEMPLAR

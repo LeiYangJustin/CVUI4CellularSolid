@@ -33,6 +33,8 @@ private:
 
 	// sampling
 	int flood_fill_sampling(cv::Mat binaryGuide, std::vector<cv::Point> &samples, int radius = 10);
+	void merge_close_samples(std::vector<cv::Point> &samples, int radius = 10);
+
 	//find joint and end points
 	void find_critical_pts(cv::Mat binaryGuide, std::vector<cv::Point> skeleton,
 		std::vector<cv::Point> &jointList, std::vector<cv::Point> &EndptList);
