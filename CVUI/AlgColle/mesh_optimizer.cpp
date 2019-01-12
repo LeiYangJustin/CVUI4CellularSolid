@@ -55,7 +55,7 @@ void CMeshOptimizer::run_optimize()
 	const double beta = 0.01;
 	// weight for ODT part
 	const double gamma_optimize_odt = 10;
-	const double gamma_optimize_cvt = 1; // do not change this parameter for cvt
+	const double gamma_optimize_cvt = 1; // do not change this parameter for cvt (default = 1)
 	const double gamma_refine = 0.01;
 	// initial gradient step
 	const double init_stepsize = 5;
@@ -64,7 +64,7 @@ void CMeshOptimizer::run_optimize()
 	// grid sampling spacing
 	const double sampling_length = 10;
 	// max iteration
-	const int max_iter = 70;
+	const int max_iter = 20;
 	// refinement  parameters
 	const double refine_thres = 0.005; // set to negative if no refinement is needed;
 	const int max_refine_iter = 2;
@@ -163,9 +163,10 @@ void CMeshOptimizer::run_optimize()
 			if (is_boundary)
 				continue;
 			move_sum += update_vertex_i(vit, init_stepsize, alpha, beta, gamma, use_cvt);
+			// this one use CVT
 			//move_sum += update_vertex_i_alternating(vit, init_stepsize, alpha, beta, gamma, use_cvt);
 			Eigen::Vector2d pos(vit->point().point().x(), vit->point().point().y());
-			sum_energy += evaluate_F(pos, vit, alpha, beta, gamma);
+			sum_energy += evaluate_F(pos, vit, alpha, beta, gamma, use_cvt);
 		}
 		sum_energy /= double(rt_->number_of_vertices());
 		std::cout << "total movement: " << move_sum << "; sum_of_energy: " << sum_energy << std::endl;
@@ -238,6 +239,7 @@ void CMeshOptimizer::run_optimize()
 	/* OUTPUT */
 	write_energy_history("energy_history.list", energy_history);
 	write_updated_voronoi("voronoi.mesh");
+	write_weighted_vertices("weighted_veritces.array");
 }
 
 void CMeshOptimizer::run_optimize_single_pt_as_test()
@@ -384,6 +386,70 @@ bool CMeshOptimizer::write_updated_triangulation(std::string fname)
 	return true;
 }
 
+bool CMeshOptimizer::write_weighted_vertices(std::string fname)
+{
+	std::cout << "write weighted vertices" << std::endl;
+	std::ofstream out_mesh_file;
+	std::string foldername = "results\\";
+	out_mesh_file.open(foldername + fname);
+	if (out_mesh_file.is_open())
+	{
+		for (auto vit = rt_->finite_vertices_begin(); vit != rt_->finite_vertices_end(); ++vit)
+		{
+			//
+			bool is_boundary = false;
+			auto vf_cir = vit->incident_faces();
+			const auto vf_end = vit->incident_faces();
+			std::vector<Point_2> omega_polygon;
+			do {
+				if (rt_->is_infinite(vf_cir))
+				{
+					is_boundary = true;
+					break;
+				}
+
+				Point_2 p0 = vf_cir->vertex(0)->point().point();
+				Point_2 p1 = vf_cir->vertex(1)->point().point();
+				Point_2 p2 = vf_cir->vertex(2)->point().point();
+				Point_2 circenter = CGAL::circumcenter(p0, p1, p2);
+				omega_polygon.push_back(circenter);
+				if (CGAL::area(p0, p1, p2) < 0.000000001)
+				{
+					std::cerr << "triangle's vertices are almost collinear with tria_area = " << CGAL::area(p0, p1, p2) << std::endl;
+					std::cout << p0 << " " << p1 << " " << p2 << std::endl;
+					write_updated_triangulation("tangling_mesh.mesh");
+				}
+			} while (++vf_cir != vf_end);
+			if (is_boundary)
+				continue;
+
+			omega_polygon.push_back(omega_polygon.front());
+			double omega_area = 0.0;
+			for (int i = 0; i + 1 < omega_polygon.size(); i++)
+			{
+				Point_2 p0 = vit->point().point();
+				Point_2 p1 = omega_polygon[i];
+				Point_2 p2 = omega_polygon[i + 1];
+				Point_2 bt = CGAL::barycenter(p0, 1, p1, 1, p2, 1);
+				double tria_area = CGAL::area(p0, p1, p2);
+				omega_area += tria_area;
+			}
+
+			out_mesh_file
+				<< vit->point().point() << " "
+				<< omega_area
+				<< std::endl;
+		}
+		out_mesh_file.close();
+	}
+	else {
+		std::cout << "wrong at writing updated triangulation" << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
 bool CMeshOptimizer::write_updated_voronoi(std::string fname)
 {
 	std::cout << "write updated triangulation" << std::endl;
@@ -394,16 +460,21 @@ bool CMeshOptimizer::write_updated_voronoi(std::string fname)
 	{
 		for (auto vit = rt_->finite_vertices_begin(); vit != rt_->finite_vertices_end(); ++vit)
 		{
+			bool is_boundary = false;
+
 			std::vector<Point_2> cc_list;
 			auto vf_cir = vit->incident_faces();
 			const auto vf_end = vf_cir;
 			do {
 				if (rt_->is_infinite(vf_cir))
-					continue;
-
-				auto cc = rt_->weighted_circumcenter(vf_cir);
-				cc_list.push_back(cc);
+				{
+					is_boundary = true;
+					break;
+				}
+				cc_list.push_back(rt_->weighted_circumcenter(vf_cir));
 			} while (++vf_cir != vf_end);
+			if (is_boundary)
+				continue;
 
 			for (auto cc : cc_list)
 			{
@@ -549,24 +620,43 @@ double CMeshOptimizer::update_vertex_i_alternating(Regular_triangulation::Vertex
 
 	/* COMPUTE GRADIENT */
 	// Do tessellation optimization
-	Eigen::Vector2d grad_F_tess = evaluate_G(x_i, vh, 0, 0, gamma, use_cvt);
-	if (grad_F_tess.norm() < 0.000001)
-	{
-		std::cerr << "grad is very small; we are done at this vertex" << std::endl;
-	}
-	else
-	{
-		/* FEASIBLE REGION */
-		double ss = find_feasible_step(x_i, vh, grad_F_tess);
-		/* LINE SEARCH */
-		double s = init_stepsize < ss ? init_stepsize : ss;
-		double s_min = find_steplength_with_wolfe_cond(s, x_i, grad_F_tess, vh, alpha, beta, gamma, use_cvt);
-		/* UPDATE X'S POSTION */
-		x_i += s_min*grad_F_tess;
-	}
+	Eigen::Vector2d grad_F_tess = evaluate_G_CVT(x_i, vh);
+	//std::cout << x_i.transpose() << ",  " << grad_F_tess.transpose() << std::endl;
+	x_i += grad_F_tess;
+
+	//if (grad_F_tess.norm() < 0.000001)
+	//{
+	//	std::cerr << "grad is very small; we are done at this vertex" << std::endl;
+	//	x_i += grad_F_tess;
+	//}
+	//else
+	//{
+	//	/* FEASIBLE REGION */
+	//	double ss = find_feasible_step(x_i, vh, grad_F_tess);
+	//	
+	//	/* LINE SEARCH */
+	//	double s = init_stepsize < ss ? init_stepsize : ss;
+	//	//double s_min = find_steplength_with_wolfe_cond(s, x_i, grad_F_tess, vh, alpha, beta, gamma, use_cvt);
+	//	// CONSTANT 
+	//	const double c1 = 0.000001;
+	//	double Fcur = evaluate_F_constraint(x_i, vh, alpha, beta);
+	//	double s_min = 0;
+	//	while (s > 0.00001) {
+	//		auto new_pos = x_i + s*grad_F_tess;
+	//		double Fval = evaluate_F_constraint(new_pos, vh, alpha, beta);
+	//		if (Fval <= Fcur + c1*s*grad_F_tess.transpose()*grad_F_tess)
+	//		{
+	//			s_min = s;
+	//			break;
+	//		}
+	//		s = 0.5*s;
+	//	}
+	//	/* UPDATE X'S POSTION */
+	//	x_i += s_min*grad_F_tess;
+	//}
 
 	// Pull back to feasible region
-	Eigen::Vector2d grad_F_feasible = evaluate_G(x_i, vh, alpha, beta, 0, use_cvt);
+	Eigen::Vector2d grad_F_feasible = evaluate_G_constraint(x_i, vh, alpha, beta);
 	if (grad_F_feasible.norm() < 0.000001)
 	{
 		std::cerr << "grad_F_feasible is very small; we are done at this vertex" << std::endl;
@@ -577,9 +667,26 @@ double CMeshOptimizer::update_vertex_i_alternating(Regular_triangulation::Vertex
 	{
 		/* FEASIBLE REGION */
 		double ss = find_feasible_step(x_i, vh, grad_F_tess);
+		
 		/* LINE SEARCH */
 		double s = init_stepsize < ss ? init_stepsize : ss;
-		double s_min = find_steplength_with_wolfe_cond(s, x_i, grad_F_tess, vh, alpha, beta, gamma, use_cvt);
+		
+		//double s_min = find_steplength_with_wolfe_cond(s, x_i, grad_F_tess, vh, alpha, beta, gamma, use_cvt);
+		// CONSTANT 
+		const double c1 = 0.000001;
+		double Fcur = evaluate_F_constraint(x_i, vh, alpha, beta);
+		double s_min = 0;
+		while (s > 0.00001) {
+			auto new_pos = x_i + s*grad_F_tess;
+			double Fval = evaluate_F_constraint(new_pos, vh, alpha, beta);
+			if (Fval <= Fcur + c1*s*grad_F_tess.transpose()*grad_F_tess)
+			{
+				s_min = s;
+				break;
+			}
+			s = 0.5*s;
+		}
+		
 		/* UPDATE X'S POSTION */
 		x_i += s_min*grad_F_tess;
 		vh->set_point(WPoint(x_i[0], x_i[1])); 
@@ -587,7 +694,20 @@ double CMeshOptimizer::update_vertex_i_alternating(Regular_triangulation::Vertex
 	}
 }
 
-double CMeshOptimizer::evaluate_F(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh, 
+double CMeshOptimizer::evaluate_F(const Eigen::Vector2d & pos, Regular_triangulation::Vertex_handle vh, 
+	const double alpha, const double beta, const double gamma, bool use_cvt)
+{
+	if (use_cvt)
+	{
+		double f_cvt= evaluate_F_CVT(pos, vh);
+		double c = evaluate_F_constraint(pos, vh, alpha, beta);
+		return gamma*f_cvt + c;
+	}
+	else
+		return evaluate_F_ODT(pos, vh, alpha, beta, gamma);
+}
+
+double CMeshOptimizer::evaluate_F_ODT(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh,
 	const double alpha, const double beta, const double gamma)
 {
 	Eigen::Matrix2d Rccw90;
@@ -652,6 +772,93 @@ double CMeshOptimizer::evaluate_F(const Eigen::Vector2d &pos, Regular_triangulat
 	//std::cout << "E = " << E << ", Ds = " << Ds << ", Dv = " << Dv << std::endl;
 
 	return gamma * E+ alpha * Ds+ beta * Dv;
+}
+
+double CMeshOptimizer::evaluate_F_CVT(const Eigen::Vector2d & pos, Regular_triangulation::Vertex_handle vh)
+{
+	// 1 CVT gradient
+
+	// constant
+	Eigen::Matrix2d Rccw90;
+	Rccw90 << 0.0, -1.0,
+		1.0, 0.0;
+
+	Eigen::Vector2d x_i(vh->point().point().x(), vh->point().point().y());
+
+	//
+	auto vf_cir = vh->incident_faces();
+	const auto vf_end = vh->incident_faces();
+	Eigen::Vector2d c_i(0, 0);
+	double cell_area = 0.0;
+	do {
+		Point_2 p0 = vf_cir->vertex(0)->point().point();
+		Point_2 p1 = vf_cir->vertex(1)->point().point();
+		Point_2 p2 = vf_cir->vertex(2)->point().point();
+		double tria_area = CGAL::area(p0, p1, p2);
+		Point_2 bt = Point_2(0, 0) + ((p0 - Point_2(0, 0)) + (p1 - Point_2(0, 0)) + (p2 - Point_2(0, 0))) / 3.0;
+		cell_area += tria_area;
+		c_i += tria_area*Eigen::Vector2d(bt.x(), bt.y());
+		if (tria_area < 0.000000001)
+		{
+			std::cerr << "triangle's vertices are almost collinear with tria_area = " << tria_area << std::endl;
+			std::cout << p0 << " " << p1 << " " << p2 << std::endl;
+			write_updated_triangulation("tangling_mesh.mesh");
+		}
+	} while (++vf_cir != vf_end);
+
+	return x_i.transpose()*(cell_area*x_i - c_i);
+}
+
+double CMeshOptimizer::evaluate_F_constraint(const Eigen::Vector2d & pos, Regular_triangulation::Vertex_handle vh, const double alpha, const double beta)
+{
+	// 
+	Eigen::Matrix2d Rccw90;
+	Rccw90 << 0.0, -1.0,
+		1.0, 0.0;
+	double Ds = 0.0;
+	double Dv = 0.0;
+
+	//
+	auto vf_cir = vh->incident_faces();
+	const auto vf_end = vh->incident_faces();
+	double cell_area = 0.0;
+	do
+	{
+		Regular_triangulation::Vertex_handle v0 = vf_cir->vertex(0);
+		Regular_triangulation::Vertex_handle v1 = vf_cir->vertex(1);
+		Regular_triangulation::Vertex_handle v2 = vf_cir->vertex(2);
+
+		Point_2 pi, pj, pk;
+		pi = Point_2(pos[0], pos[1]);
+		if (v0 == vh)
+		{
+			pj = v1->point().point();
+			pk = v2->point().point();
+		}
+		else if (v1 == vh)
+		{
+			pj = v2->point().point();
+			pk = v0->point().point();
+		}
+		else
+		{
+			pj = v0->point().point();
+			pk = v1->point().point();
+		}
+		double tria_area = CGAL::area(pi, pj, pk);
+		cell_area += tria_area;
+
+		// circumcenter and barycenter
+		Vector_2 vij_ccw_perp(-(pj - pi).y(), (pj - pi).x());
+		Vector_2 vki_ccw_perp(-(pi - pk).y(), (pi - pk).x());
+		Point_2 c = pi + (vij_ccw_perp.squared_length()*vki_ccw_perp + vki_ccw_perp.squared_length()*vij_ccw_perp) / (4 * tria_area);
+		Dv += tria_area*dist_transform_field_V(Eigen::Vector2d(c.x(), c.y())); // weighing this term by triangle area
+
+	} while (++vf_cir != vf_end);
+
+	Ds = cell_area*dist_transform_field_S(pos); // weighing this term by cell area
+
+	return alpha * Ds + beta * Dv;
 }
 
 Eigen::Vector2d CMeshOptimizer::evaluate_G(
@@ -913,42 +1120,40 @@ Eigen::Vector2d CMeshOptimizer::evaluate_G_CVT(const Eigen::Vector2d & pos, Regu
 	//
 	auto vf_cir = vh->incident_faces();
 	const auto vf_end = vh->incident_faces();
-	Eigen::Vector2d c_i(0, 0);
-	double cell_area = 0.0;
+	std::vector<Point_2> omega_polygon;
 	do {
 		Point_2 p0 = vf_cir->vertex(0)->point().point();
 		Point_2 p1 = vf_cir->vertex(1)->point().point();
 		Point_2 p2 = vf_cir->vertex(2)->point().point();
-		double tria_area = CGAL::area(p0, p1, p2);
-		Point_2 bt = Point_2(0, 0) + ((p0 - Point_2(0,0)) + (p1 - Point_2(0, 0)) + (p2 - Point_2(0, 0))) / 3;
-		cell_area += tria_area;
-		c_i += tria_area*Eigen::Vector2d(bt.x(), bt.y());
-		if (tria_area < 0.000000001)
+		Point_2 circenter = CGAL::circumcenter(p0, p1, p2);
+		omega_polygon.push_back(circenter);
+
+		if (CGAL::area(p0, p1, p2) < 0.000000001)
 		{
-			std::cerr << "triangle's vertices are almost collinear with tria_area = " << tria_area << std::endl;
+			std::cerr << "triangle's vertices are almost collinear with tria_area = " << CGAL::area(p0, p1, p2) << std::endl;
 			std::cout << p0 << " " << p1 << " " << p2 << std::endl;
 			write_updated_triangulation("tangling_mesh.mesh");
 		}
 	} while (++vf_cir != vf_end);
+	omega_polygon.push_back(omega_polygon.front());
 
-	assert(grad_E.size() == 2);
+	Eigen::Vector2d c_i(0, 0);
+	double omega_area = 0.0;
+	for (int i = 0; i+1 < omega_polygon.size(); i++)
+	{
+		Point_2 p0 = vh->point().point();
+		Point_2 p1 = omega_polygon[i];
+		Point_2 p2 = omega_polygon[i+1];
+		Point_2 bt = CGAL::barycenter(p0, 1, p1, 1, p2, 1);
+		double tria_area = CGAL::area(p0, p1, p2);
+		omega_area += tria_area;
+		c_i += tria_area*Eigen::Vector2d(bt.x(), bt.y());
+	}
 
 	//grad_E = 2*cell_area*x_i - 2*c_i;
-	grad_E = cell_area*x_i - c_i; // move half way to c_i
+	grad_E = x_i - c_i/ omega_area; // move half way to c_i
 
-	Eigen::Vector2d grad_F;
-	grad_F = -grad_E;
-
-	//std::cout
-	//	<< "grad_E = " << grad_E.transpose() << "\n"
-	//	<< "grad_Ds = " << grad_Ds.transpose() << " "
-	//	<< " (alpha = " << alpha << ")\n"
-	//	<< "grad_DvDx = " << grad_DvDx.transpose() << " "
-	//	<< " (beta = " << beta << ")\n";
-	//std::cout << "grad_F = " << grad_F.transpose() << " "
-	//	<< std::endl;
-
-	return grad_F;
+	return -grad_E/2.0;
 }
 
 double CMeshOptimizer::find_feasible_step(const Eigen::Vector2d & pos,
@@ -989,12 +1194,12 @@ double CMeshOptimizer::find_steplength_with_wolfe_cond(double s,
 	const double c2 = 0.1;
 	const bool use_curvature_wolfe_condition = false;
 
-	double Fcur = evaluate_F(xi, vh, alpha, beta, gamma);
+	double Fcur = evaluate_F(xi, vh, alpha, beta, gamma, use_cvt);
 	double s_min = 0;
 	//
 	while(s > 0.00001) {
 		auto new_pos = xi + s*gi;
-		double Fval = evaluate_F(new_pos, vh, alpha, beta, gamma);
+		double Fval = evaluate_F(new_pos, vh, alpha, beta, gamma, use_cvt);
 
 		//std::cout << "s = " << s << ", pos = " << new_pos.transpose() << std::endl;
 		//std::cout << "Fcur = " << Fcur << ", Fval = " << Fval << std::endl;
@@ -1025,19 +1230,10 @@ double CMeshOptimizer::find_steplength_with_wolfe_cond(double s,
 	const auto vv_end = vv_cir;
 	do {
 		polygon.push_back(vv_cir->point().point());
-		//std::cout << vv_cir->point().point() << std::endl;
 	} while (++vv_cir != vv_end);
-	//polygon.push_back(vv_end->point().point()); // closed
-	//std::cout << vv_end->point().point() << std::endl;
 
 	auto xnew = xi + s_min*gi;
 	Point_2 pi(xnew[0], xnew[1]);
-	//if(polygon.bounded_side(pi) != CGAL::ON_BOUNDED_SIDE)
-	//{
-	//	std::cout << "interior pt: " << pi << std::endl;
-	//	std::cout << "polygon: " << std::endl;
-	//	std::copy(polygon.vertices_begin(), polygon.vertices_end(), std::ostream_iterator<Point_2>(std::cout));
-	//}
 	assert(polygon.bounded_side(pi) == CGAL::ON_BOUNDED_SIDE);
 	return s_min;
 }

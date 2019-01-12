@@ -8,7 +8,8 @@
 #include <iterator>     // std::istream_iterator
 #include "../DataColle/cgal_def.h"
 #include <list>
-#include "../DataColle/voronoi_diagram.h"
+#include "../DataColle/customized_tds.h"
+//#include "../DataColle/voronoi_diagram.h"
 
 class CReader
 {

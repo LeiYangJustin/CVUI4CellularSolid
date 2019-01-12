@@ -5,7 +5,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <vector>
-#include "../DataColle/voronoi_diagram.h"
+#include "../DataColle/customized_tds.h"
 
 class ALGCOLLE_CLASS CMeshOptimizer
 {
@@ -21,6 +21,7 @@ public:
 	// examination
 	bool write_input_fields_for_check();
 	bool write_updated_triangulation(std::string fname);
+	bool write_weighted_vertices(std::string fname);
 	bool write_updated_voronoi(std::string fname);
 	bool write_single_pt_trace(std::string fname, std::vector<Point_2> trace);
 	bool write_energy_history(std::string fname, std::vector<double> energy_history);
@@ -34,19 +35,27 @@ private:
 		const double alpha, const double beta, const double gamma, bool use_cvt);
 	double update_vertex_i_alternating(Regular_triangulation::Vertex_handle vh, double init_stepsize,
 		const double alpha, const double beta, const double gamma, bool use_cvt);
-	double evaluate_F(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh, 
-		const double alpha, const double beta, const double gamma);
-	Eigen::Vector2d evaluate_G(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh,
-		const double alpha, const double beta, const double gamma, bool use_cvt = true);
 
-	Eigen::Vector2d evaluate_G_constraint(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh,
+	// function evaluation
+	double evaluate_F(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh, 
+		const double alpha, const double beta, const double gamma, bool use_cvt);
+	double evaluate_F_ODT(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh,
+		const double alpha, const double beta, const double gamma);
+	double evaluate_F_CVT(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh);
+	double evaluate_F_constraint(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh,
 		const double alpha, const double beta);
-	// using ODT energy
+
+	// gradient computation
+	Eigen::Vector2d evaluate_G(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh,
+		const double alpha, const double beta, const double gamma, bool use_cvt);
+	// using ODT energy + constraint
 	Eigen::Vector2d evaluate_G_ODT(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh, 
 		const double alpha, const double beta, const double gamma);
 	// compute only gradient of the CVT energy 
 	Eigen::Vector2d evaluate_G_CVT(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh);
-	
+	Eigen::Vector2d evaluate_G_constraint(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh,
+		const double alpha, const double beta);
+
 	double find_feasible_step(const Eigen::Vector2d &pos, Regular_triangulation::Vertex_handle vh, const Eigen::Vector2d &dir);
 	double find_steplength_with_wolfe_cond(double s,
 		const Eigen::Vector2d &xi,
