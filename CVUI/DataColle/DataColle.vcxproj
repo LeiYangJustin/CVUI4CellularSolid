@@ -149,10 +149,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="cgal_def.h" />
+    <ClInclude Include="types.h" />
     <ClInclude Include="dataprereq.h" />
-    <ClInclude Include="customized_tds.h" />
+    <ClInclude Include="primitives.h" />
+    <ClInclude Include="domain.h" />
+    <ClInclude Include="convex_polygon.h" />
+    <ClInclude Include="rt2.h" />
     <ClInclude Include="img_data.h" />
+    <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="img_data.cpp" />

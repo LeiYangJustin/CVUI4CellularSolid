@@ -1,10 +1,17 @@
 #ifndef C_GEO_CALCULATOR_H
 #define C_GEO_CALCULATOR_H
 
-#include "algprereq.h"
-#include "../DataColle/cgal_def.h"
+// Eigen
 #include <Eigen/Core>
 #include <Eigen/SVD>
+
+// CGAL
+#include "../DataColle/types.h"
+
+//
+#include "algprereq.h"
+
+
 class ALGCOLLE_CLASS CGeoCalculator
 {
 public:
@@ -37,7 +44,7 @@ public:
 
 	// transformation
 	// rotation from S_right to S_left; R*S_right = S_left
-	static Eigen::Matrix2d compute_2drotation_from_right_to_left(Eigen::MatrixXd S0, Eigen::MatrixXd S1);
+	static Eigen::MatrixXd compute_rotation_from_right_to_left(Eigen::MatrixXd S0, Eigen::MatrixXd S1);
 	static double compute_uniformScale_from_right_to_left(Eigen::MatrixXd S0, Eigen::MatrixXd S1);
 
 	// eigen values

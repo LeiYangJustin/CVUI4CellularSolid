@@ -62,9 +62,9 @@ double CGeoCalculator::projection_of_point_to_line(Point_2 q, Point_2 p1, Point_
 	return v1*v2 / sqrt(v2.squared_length());
 }
 
-Eigen::Matrix2d CGeoCalculator::compute_2drotation_from_right_to_left(Eigen::MatrixXd S0, Eigen::MatrixXd S1)
+Eigen::MatrixXd CGeoCalculator::compute_rotation_from_right_to_left(Eigen::MatrixXd S0, Eigen::MatrixXd S1)
 {
-	assert(S1.cols() == 2 && S0.cols() == 2);
+	assert(S1.cols() == S0.cols());
 	// assuming S0 and S1 are already shifted to their centers (means)
 	// we want to compute a rotation R that rotates S1 (A^T) to S0 (B^T)
 	// | RA - B |_{Frobenius_norm} -> min, where R is an orthogonal matrix

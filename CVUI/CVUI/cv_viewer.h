@@ -1,7 +1,7 @@
 #ifndef C_VIEWER_H
 #define C_VIEWER_H
 
-#include "../DataColle/cgal_def.h"
+#include "../DataColle/types.h"
 #include "../DataColle/img_data.h"
 #include <vector>
 #include <iostream>

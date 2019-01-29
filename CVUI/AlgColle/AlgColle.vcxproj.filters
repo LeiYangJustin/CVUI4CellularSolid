@@ -13,29 +13,77 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="scene_alg">
+      <UniqueIdentifier>{b585db06-977a-463f-aaca-08bc7badde20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene_alg\Header">
+      <UniqueIdentifier>{119b5b91-e234-429d-92de-6948f3104bdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene_alg\Sources">
+      <UniqueIdentifier>{1d0e9aca-c099-4f3a-80dd-8619d94850c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="skeleton_extractor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="geo_calculator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mesh_optimizer.cpp">
+    <ClCompile Include="bbnot\energy.cpp">
+      <Filter>scene_alg\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="bbnot\histogram.cpp">
+      <Filter>scene_alg\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="bbnot\init.cpp">
+      <Filter>scene_alg\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="bbnot\io.cpp">
+      <Filter>scene_alg\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="bbnot\optimizer.cpp">
+      <Filter>scene_alg\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="bbnot\regularity.cpp">
+      <Filter>scene_alg\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="bbnot\sites.cpp">
+      <Filter>scene_alg\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dGBOD12_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="synthesis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="extraction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="skeleton_extractor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="algprereq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="geo_calculator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mesh_optimizer.h">
+    <ClInclude Include="bbnot\line_search.h">
+      <Filter>scene_alg\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="bbnot\pw_line_search.h">
+      <Filter>scene_alg\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="bbnot\random.h">
+      <Filter>scene_alg\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="bbnot\scene.h">
+      <Filter>scene_alg\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="dGBOD12_test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="extraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="synthesis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,15 +6,17 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>     // std::istream_iterator
-#include "../DataColle/cgal_def.h"
 #include <list>
-#include "../DataColle/customized_tds.h"
+
+#include "../DataColle/rt2.h"
+#include "../DataColle/types.h"
+
 //#include "../DataColle/voronoi_diagram.h"
 
 class CReader
 {
 public:
-	static void read_data_array_file(std::string filename, std::vector<Point_2> & pts, std::vector<bool> & is_constrained_list);
+	static void read_data_array_file(std::string filename, std::vector<Point_2> & pts);
 
 	static bool write_triangles_from_rt(const std::string &fname, Regular_triangulation *rt);
 	static bool write_vertices_nearest(const std::string &fname, Regular_triangulation *rt);

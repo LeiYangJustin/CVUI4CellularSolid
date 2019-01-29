@@ -102,7 +102,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;ALGCOLLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(OPENCV_DIR)\install\include;$(EIGEN_ROOT);$(BOOST_INCLUDEDIR);$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)\install\include;$(EIGEN_ROOT);$(BOOST_INCLUDEDIR);$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;D:\CodingFacilities\LIBIGLGIT\libigl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -138,7 +138,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;ALGCOLLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(OPENCV_DIR)\install\include;$(EIGEN_ROOT);$(BOOST_INCLUDEDIR);$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)\install\include;$(EIGEN_ROOT);$(BOOST_INCLUDEDIR);$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;D:\CodingFacilities\LIBIGLGIT\libigl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,15 +150,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bbnot\energy.cpp" />
+    <ClCompile Include="bbnot\histogram.cpp" />
+    <ClCompile Include="bbnot\init.cpp" />
+    <ClCompile Include="bbnot\io.cpp" />
+    <ClCompile Include="bbnot\optimizer.cpp" />
+    <ClCompile Include="bbnot\regularity.cpp" />
+    <ClCompile Include="bbnot\sites.cpp" />
+    <ClCompile Include="dGBOD12_test.cpp" />
+    <ClCompile Include="extraction.cpp" />
     <ClCompile Include="geo_calculator.cpp" />
-    <ClCompile Include="mesh_optimizer.cpp" />
-    <ClCompile Include="skeleton_extractor.cpp" />
+    <ClCompile Include="synthesis.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bbnot\line_search.h" />
+    <ClInclude Include="bbnot\pw_line_search.h" />
+    <ClInclude Include="bbnot\random.h" />
+    <ClInclude Include="bbnot\scene.h" />
     <ClInclude Include="geo_calculator.h" />
-    <ClInclude Include="mesh_optimizer.h" />
     <ClInclude Include="algprereq.h" />
-    <ClInclude Include="skeleton_extractor.h" />
+    <ClInclude Include="dGBOD12_test.h" />
+    <ClInclude Include="extraction.h" />
+    <ClInclude Include="synthesis.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

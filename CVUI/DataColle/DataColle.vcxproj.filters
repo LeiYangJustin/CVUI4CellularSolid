@@ -13,19 +13,34 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="bbnot_ds">
+      <UniqueIdentifier>{36129b6c-ac0c-41c7-a538-f8561387f1b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cgal_def.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dataprereq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="img_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="customized_tds.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="util.h">
+      <Filter>bbnot_ds</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>bbnot_ds</Filter>
+    </ClInclude>
+    <ClInclude Include="rt2.h">
+      <Filter>bbnot_ds</Filter>
+    </ClInclude>
+    <ClInclude Include="primitives.h">
+      <Filter>bbnot_ds</Filter>
+    </ClInclude>
+    <ClInclude Include="domain.h">
+      <Filter>bbnot_ds</Filter>
+    </ClInclude>
+    <ClInclude Include="convex_polygon.h">
+      <Filter>bbnot_ds</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
