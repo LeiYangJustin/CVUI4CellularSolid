@@ -86,13 +86,18 @@ protected:
         {
             double alpha = pick_alpha(lower_alpha, upper_alpha);
             bool ok = move_position(alpha);
-            //std::cout << "alpha = " << alpha << std::endl;
+            //std::cout << "alpha = " << alpha 
+				//<< std::boolalpha << ok 
+				//<< std::endl;
             
             if (ok)
             {
                 double phi = evaluate_function();
                 if (phi <= (m_phi0 + m_c1 * alpha * m_grad_phi0))
-                    return alpha;
+				{
+					//std::cout << "phi: " << phi << "  <= phi0: " << m_phi0 + m_c1 * alpha * m_grad_phi0 << std::endl;
+					return alpha;
+				}
             }
             
             //std::cout << "decrease alpha" << std::endl;
@@ -227,17 +232,17 @@ protected:
         return compute_function();
     }
 
-    double evaluate_gradient() const
-    {
-        std::vector<Velocity> V;
-        compute_gradient(V);
-        
-        /* V * m_v0 */
-        double sum = 0.0;
-        for (unsigned i = 0; i < m_v0.size(); ++i)
-            sum += V[i] * m_v0[i];
-        return sum;
-    }
+	double evaluate_gradient() const
+	{
+		std::vector<Velocity> V;
+		compute_gradient(V);
+
+		/* V * m_v0 */
+		double sum = 0.0;
+		for (unsigned i = 0; i < m_v0.size(); ++i)
+			sum += V[i] * m_v0[i];
+		return sum;
+	}
 
     virtual double compute_function() const = 0;
 

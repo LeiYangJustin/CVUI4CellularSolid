@@ -5,6 +5,42 @@
 #include "scene.h"
 #include "random.h"
 
+void Scene::generate_random_sites_in_rectangle_box(const unsigned nb, const unsigned nx, const unsigned ny)
+{
+	std::vector<Point_2> points;
+	double dx = m_domain.width();
+	double dy = m_domain.height();
+	while (points.size() != nb)
+	{
+		double x = random_double(-dx, dx);
+		double y = random_double(-dy, dy);
+		Point_2 p(x, y);
+		if (m_domain.is_inside(p))
+			points.push_back(p);
+	}
+
+	FT stepx = 2.0 * dx / nx;
+	FT stepy = 2.0 * dy / ny;
+
+	for (double bdy = -dy-stepy; bdy <= dy+stepy; bdy+=stepy)
+	{
+		Point_2 pmin(-dx - stepx, bdy);
+		points.push_back(pmin);
+		Point_2 pmax(dx + stepx, bdy);
+		points.push_back(pmax);
+	}
+	for (double bdx = -dx - stepx; bdx <= dx + stepx; bdx += stepx)
+	{
+		Point_2 pmin(bdx, -dy - stepy);
+		points.push_back(pmin);
+		Point_2 pmax(bdx, dy + stepy);
+		points.push_back(pmax);
+	}
+
+	std::vector<FT> weights(points.size(), 0.0);
+	construct_triangulation(points, weights);
+}
+
 void Scene::generate_random_sites(const unsigned nb)
 {
     std::vector<Point_2> points;
@@ -18,6 +54,7 @@ void Scene::generate_random_sites(const unsigned nb)
         if (m_domain.is_inside(p))
             points.push_back(p);
     }
+
     std::vector<FT> weights(points.size(), 0.0);
     construct_triangulation(points, weights);
 }

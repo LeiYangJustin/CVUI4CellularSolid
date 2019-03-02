@@ -17,11 +17,21 @@ FT Scene::optimize_positions_via_lloyd(bool update)
     {
         Vertex_handle vi = m_vertices[i];
         if (vi->is_hidden()) continue;        
-        Point_2 ci = m_rt.compute_centroid(vi);
-        points.push_back(ci);
+		Point_2 ci = m_rt.compute_centroid(vi);
+		points.push_back(ci);
+
+		//if (m_domain.is_outside(vi->get_position()))
+		//	points.push_back(vi->get_position());
+		//else{
+		//	Point_2 ci = m_rt.compute_centroid(vi);
+		//	points.push_back(ci);
+		//}
     }
     update_positions(points);
     if (update) update_triangulation();
+
+	//update_positions(points, false, true);
+	//if (update) update_triangulation();
 
     std::vector<Vector_2> gradient;
     compute_position_gradient(gradient);
@@ -330,75 +340,4 @@ unsigned Scene::optimize_all(FT wstep, FT xstep,
     
     m_fixed_connectivity = global_connectivity;
     return iters;
-}
-
-unsigned Scene::optimize_all_with_background_constraint(FT wstep, FT xstep,
-	unsigned max_newton_iters,
-	FT epsilon, 
-	unsigned max_iters,
-	std::ostream& out)
-{
-	//
-	std::string fname = "synthss_";
-	std::string affix = ".mesh";
-
-	//bool global_connectivity = m_fixed_connectivity;
-
-
-	// initialize
-	FT norm = optimize_positions_via_lloyd(true);
-	unsigned nb0 = count_visible_sites();
-
-	FT xthreshold = compute_position_threshold(epsilon);
-	FT wthreshold = compute_weight_threshold(epsilon);
-
-	out << "NbSites: " << nb0 << std::endl; // should be the number of vertices
-	out << "Threshold: " << xthreshold << " ; " << wthreshold << std::endl;
-
-	//
-	std::string fname_increment = fname + "0";
-	write_updated_triangulation(fname_increment + affix, m_rt);
-	//
-
-	// coarse-level computation
-	//m_fixed_connectivity = false;
-	FT coarse_xthreshold = 2.0*xthreshold;
-	FT coarse_wthreshold = 2.0*wthreshold;
-	unsigned iters = 0;
-	while (iters < max_iters)
-	{
-		iters++;
-		norm = optimize_positions_via_lloyd(true);
-		//
-		fname_increment = fname + std::to_string(iters);
-		write_updated_triangulation(fname_increment + affix, m_rt);
-		//
-		std::cout << "Norm: " << norm << std::endl;
-		if (norm <= coarse_xthreshold) break;
-	}
-
-	std::cout << "Partial: " << iters << " iters" << std::endl;
-	//m_fixed_connectivity = global_connectivity;
-	if (iters == max_iters) return iters;
-
-
-	// fine-level computation
-	//m_fixed_connectivity = false;
-	FT fine_xthreshold = xthreshold;
-	FT fine_wthreshold = wthreshold;
-	while (iters < max_iters)
-	{
-		iters++;
-		norm = optimize_positions_via_gradient_ascent(xstep, true);
-		//
-		fname_increment = fname + std::to_string(iters);
-		write_updated_triangulation(fname_increment + affix, m_rt);
-		//
-		std::cout << "Norm: " << norm << std::endl;
-		if (norm <= fine_xthreshold) break;
-	}
-
-	//m_fixed_connectivity = global_connectivity;
-	return iters;
-
 }

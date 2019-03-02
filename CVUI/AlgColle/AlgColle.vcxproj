@@ -138,15 +138,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;ALGCOLLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(OPENCV_DIR)\install\include;$(EIGEN_ROOT);$(BOOST_INCLUDEDIR);$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;D:\CodingFacilities\LIBIGLGIT\libigl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)\install\include;$(EIGEN_ROOT);$(BOOST_INCLUDEDIR);$(CGAL12)\auxiliary\gmp\include;$(CGAL12)\build\include;$(CGAL12)\include;D:\CodingFacilities\LIBIGLGIT\libigl\include;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\ANN;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\OPENCV\lib;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\CGAL\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DataColle.lib;opencv_core400.lib;opencv_highgui400.lib;opencv_imgcodecs400.lib;opencv_imgproc400.lib;CGAL-vc140-mt-4.12.lib;CGAL_ImageIO-vc140-mt-4.12.lib;CGAL_Core-vc140-mt-4.12.lib;libmpfr-4.lib;libgmp-10.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\OPENCV\lib;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\CGAL\lib;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\ANN</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DataColle.lib;opencv_core400.lib;opencv_highgui400.lib;opencv_imgcodecs400.lib;opencv_imgproc400.lib;CGAL-vc140-mt-4.12.lib;CGAL_ImageIO-vc140-mt-4.12.lib;CGAL_Core-vc140-mt-4.12.lib;libmpfr-4.lib;libgmp-10.lib;ANN.lib%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -160,6 +160,7 @@
     <ClCompile Include="dGBOD12_test.cpp" />
     <ClCompile Include="extraction.cpp" />
     <ClCompile Include="geo_calculator.cpp" />
+    <ClCompile Include="bg_scene.cpp" />
     <ClCompile Include="synthesis.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +172,8 @@
     <ClInclude Include="algprereq.h" />
     <ClInclude Include="dGBOD12_test.h" />
     <ClInclude Include="extraction.h" />
+    <ClInclude Include="bg_scene.h" />
+    <ClInclude Include="ann_tree_wrapper.h" />
     <ClInclude Include="synthesis.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -57,6 +57,9 @@
     <ClCompile Include="extraction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bg_scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="algprereq.h">
@@ -84,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="synthesis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bg_scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ann_tree_wrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

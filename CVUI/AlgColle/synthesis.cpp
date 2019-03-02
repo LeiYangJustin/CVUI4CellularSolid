@@ -43,11 +43,11 @@ bool CMeshSynthesizer::synthesize()
 	{
 		// SCENE_OPTIMIZE
 		scene_.optimize_all(stepW, stepX, max_newton_iters, epsilon, max_opt_iters, std::cout);
-		scene_.get_rt(synthss_);
+		//scene_.get_rt(synthss_);
 
-		// MATCHING TO ASSIGN CAPACTITY CONSTRAINTS
+		//// MATCHING TO ASSIGN CAPACTITY CONSTRAINTS
 
-		scene_.set_rt(synthss_);
+		//scene_.set_rt(synthss_);
 	};
 
 	return false;

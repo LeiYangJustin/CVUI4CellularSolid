@@ -16,9 +16,12 @@
 #include "../../DataColle/types.h"
 #include "../../DataColle/util.h"
 
-class Scene
+// 
+#include "../algprereq.h"
+
+class ALGCOLLE_CLASS Scene
 {    
-private:
+protected:
     RT m_rt;
     Domain m_domain;
     std::vector<FT> m_capacities;
@@ -56,14 +59,14 @@ public:
 	};
 
 	// interface between matching and optimization
-	void set_rt(RT * rt) { m_rt = *rt; };
-	void get_rt(RT * rt) { rt = &m_rt; };
+	void set_rt(RT * rt) { m_rt = *rt; m_rt.set_domain(&m_domain); };
+	void get_rt(RT &rt) { rt = m_rt; };
 
-	// optimize with specific constraint
-	unsigned optimize_all_with_background_constraint(FT wstep, FT xstep, 
-		unsigned max_newton_iters,
-		FT epsilon, unsigned max_iters,
-		std::ostream& out);
+	//// optimize with specific constraint
+	//unsigned optimize_all_with_background_constraint(FT wstep, FT xstep, 
+	//	unsigned max_newton_iters,
+	//	FT epsilon, unsigned max_iters,
+	//	std::ostream& out);
 
 	// ORIGINAL CODES //
 
@@ -102,7 +105,8 @@ public:
 	bool Scene::write_updated_triangulation(std::string fname, RT &rt);
 
     // SITES //
-    
+	void generate_random_sites_in_rectangle_box(const unsigned nb, const unsigned nx, const unsigned ny);
+
     void generate_random_sites(const unsigned nb);
 
     void generate_regular_grid(const unsigned nx, const unsigned ny);

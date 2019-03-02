@@ -112,8 +112,8 @@ Vertex_handle Scene::insert_vertex(const Point_2& point,
     Weighted_point_2 wp(point, weight);
     Vertex_handle vertex = m_rt.insert(wp);
 
-    if (vertex->get_index() != -1)
-        return Vertex_handle();
+	if (vertex->get_index() != -1)
+		return Vertex_handle();
     
     vertex->set_index(index);
     return vertex;
