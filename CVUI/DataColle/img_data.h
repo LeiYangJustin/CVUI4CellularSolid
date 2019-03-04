@@ -38,9 +38,10 @@ public:
 	void GetBoundingDomain(int & width, int & height);
 
 
+	void find_solid_contours(std::vector<std::vector<double>> &edge_pts) { find_contours(edge_pts, solid_img_); };
+	void find_void_contours(std::vector<std::vector<double>> &edge_pts) { find_contours(edge_pts, void_img_); };
 	void get_two_distance_transform_fields(int &rows, int &cols,
 		std::vector<double> &Sfield, std::vector<double> &Vfield);
-
 
 private:
 	cv::Mat src_img_;
@@ -55,6 +56,7 @@ private:
 	void binarize_src_img();
 	void make_background();
 	void convert_skeleton_to_img(bool is_solid, cv::Mat &img);
+	void find_contours(std::vector<std::vector<double>> &edge_pts, const cv::Mat bw);
 };
 
 #endif // !C_IMG_DATA_H

@@ -15,7 +15,6 @@
 
 //
 #include "../DataColle/img_data.h"
-//#include "../AlgColle/skeleton_extractor.h"
 
 #include "../AlgColle/extraction.h"
 #include "../AlgColle/synthesis.h"
@@ -29,7 +28,7 @@
 int main()
 {
 	// read some gray-scale image from the given path
-	std::string filename = "D:\\MyProjects\\CVUI4CellularSolid\\CVUI\\img_data\\example1.png";
+	std::string filename = "D:\\MyProjects\\CVUI4CellularSolid\\CVUI\\img_data\\example7.png";
 	cv::Mat src_img = cv::imread(filename);
 	if (src_img.data == NULL)
 		return EXIT_FAILURE;
@@ -53,8 +52,8 @@ int main()
 	int rows, cols;
 	std::vector<double> solid_field, void_field;
 	img_data->get_two_distance_transform_fields(rows, cols, solid_field, void_field);
-
-
+	std::vector<std::vector<double>> edge_pts;
+	img_data->find_void_contours(edge_pts);
 	//
 	std::cout << "\n-optimize the triangulation" << std::endl;
 	RT * example_net = new RT;
@@ -62,7 +61,7 @@ int main()
 
 #ifdef TEST_EXAMPLE
 	CMeshExtractor net_extractor(example_net);
-	net_extractor.setup_background(rows, cols, solid_field, void_field);
+	net_extractor.setup_background(rows, cols, solid_field, void_field, edge_pts);
 	net_extractor.run_extraction();
 
 	std::cout << "\n-output data" << std::endl;
@@ -79,7 +78,6 @@ int main()
 	CReader::read_data_array_file("D:\\MyProjects\\CVUI4CellularSolid\\CVUI\\img_data\\samples_40.txt", pts);
 	RT * synthss_net = new RT;
 	CMeshSynthesizer net_synthesizer(synthss_net);
-
 #endif
 
 	std::cout << "finished" << std::endl;
@@ -89,8 +87,7 @@ int main()
 	delete synthss_net;
 }
 
-#include "../AlgColle/dGBOD12_test.h"
-
+//#include "../AlgColle/dGBOD12_test.h"
 //int main()
 //{
 //	CTest_dGBOD12 test;

@@ -3,10 +3,18 @@
 
 #include "algprereq.h"
 
+#include <vector>
+
+//
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
-#include <vector>
+// INCLUDE OPENCV DIR
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgcodecs/imgcodecs.hpp>
+#include <opencv2/opencv.hpp>
 
 #include "../DataColle/types.h"
 #include "bg_scene.h"
@@ -18,7 +26,8 @@ public:
 	~CMeshExtractor() { delete rt_; };
 
 public:
-	void setup_background(int rows, int cols, std::vector<double> &sz, std::vector<double> &vz);
+	void setup_background(int rows, int cols, 
+		std::vector<double> &sz, std::vector<double> &vz, std::vector<std::vector<double>> edgePts);
 	void run_extraction();
 
 	// examination
@@ -30,6 +39,13 @@ private:
 		const Eigen::MatrixXd &zmap,
 		Eigen::MatrixXd &zgradx,
 		Eigen::MatrixXd &zgrady);
+
+	void compute_principal_directions(
+		const Eigen::MatrixXd &zmap,
+		Eigen::MatrixXd &pc1x,
+		Eigen::MatrixXd &pc1y,
+		Eigen::MatrixXd &pc2x,
+		Eigen::MatrixXd &pc2y);
 
 private:
 	RT * rt_;
@@ -48,7 +64,6 @@ private:
 
 	std::vector<double> feval_history_;
 
-	
 };
 
 #endif // !C_EXTRACTION_H

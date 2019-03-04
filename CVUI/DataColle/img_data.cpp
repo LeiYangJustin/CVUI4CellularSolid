@@ -152,3 +152,24 @@ void CImgData::convert_skeleton_to_img(bool is_solid, cv::Mat & img)
 
 	skel_img.copyTo(img);
 }
+
+void CImgData::find_contours(std::vector<std::vector<double>>& edge_pts, const cv::Mat bw)
+{
+	//cv::Mat tmpBW;
+	//bitwise_not(bw, bw);
+
+	// get contours
+	std::vector<std::vector<cv::Point> > contours;
+	findContours(bw, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+
+	for (int i = 0; i < contours.size(); ++i)
+	{
+		for (int j = 0; j < contours[i].size(); ++j)
+		{
+			std::vector<double> pt;
+			pt.push_back(contours[i][j].x);
+			pt.push_back(contours[i][j].y);
+			edge_pts.push_back(pt);
+		}
+	}
+}

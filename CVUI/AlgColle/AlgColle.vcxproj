@@ -108,8 +108,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>DataColle.lib;opencv_core400d.lib;opencv_highgui400d.lib;opencv_imgcodecs400d.lib;opencv_imgproc400d.lib;CGAL-vc140-mt-gd-4.12.lib;CGAL_ImageIO-vc140-mt-gd-4.12.lib;CGAL_Core-vc140-mt-gd-4.12.lib;libmpfr-4.lib;libgmp-10.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(OPENCV_DIR)\bin\Debug;$(OPENCV_DIR)\lib\Debug;$(CGAL12)\build\lib;$(CGAL12)\auxiliary\gmp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DataColle.lib;opencv_core400d.lib;opencv_highgui400d.lib;opencv_imgcodecs400d.lib;opencv_imgproc400d.lib;CGAL-vc140-mt-gd-4.12.lib;CGAL_ImageIO-vc140-mt-gd-4.12.lib;CGAL_Core-vc140-mt-gd-4.12.lib;libmpfr-4.lib;libgmp-10.lib;ANN.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(OPENCV_DIR)\bin\Debug;$(OPENCV_DIR)\lib\Debug;$(CGAL12)\build\lib;$(CGAL12)\auxiliary\gmp\lib;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\ANN</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,10 +146,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\OPENCV\lib;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\CGAL\lib;D:\MyProjects\CVUI4CellularSolid\CVUI\x64_third_party\ANN</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DataColle.lib;opencv_core400.lib;opencv_highgui400.lib;opencv_imgcodecs400.lib;opencv_imgproc400.lib;CGAL-vc140-mt-4.12.lib;CGAL_ImageIO-vc140-mt-4.12.lib;CGAL_Core-vc140-mt-4.12.lib;libmpfr-4.lib;libgmp-10.lib;ANN.lib%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DataColle.lib;opencv_core400.lib;opencv_highgui400.lib;opencv_imgcodecs400.lib;opencv_imgproc400.lib;CGAL-vc140-mt-4.12.lib;CGAL_ImageIO-vc140-mt-4.12.lib;CGAL_Core-vc140-mt-4.12.lib;libmpfr-4.lib;libgmp-10.lib;ANN.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ann_tree_wrapper.cpp" />
     <ClCompile Include="bbnot\energy.cpp" />
     <ClCompile Include="bbnot\histogram.cpp" />
     <ClCompile Include="bbnot\init.cpp" />

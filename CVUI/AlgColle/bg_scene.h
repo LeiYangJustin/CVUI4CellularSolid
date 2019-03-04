@@ -16,6 +16,9 @@
 
 #include "algprereq.h"
 
+//// build a kdtree for spatial query
+#include "ann_tree_wrapper.h"
+
 //typedef CLSWeights<Scene, FT> LSWeights;
 class BgScene;
 typedef C_BG_LSPositions<BgScene, Point_2, Vector_2> BG_LSPositions;
@@ -23,18 +26,6 @@ typedef C_BG_LSPositions<BgScene, Point_2, Vector_2> BG_LSPositions;
 class BgScene : public Scene
 {
 private:
-	//RT m_rt;
-	//Domain m_domain;
-	//std::vector<FT> m_capacities;
-	//std::vector<Vertex_handle> m_vertices;
-	//bool m_fixed_connectivity;
-	//double m_tau;
-
-	////bool m_timer_on;
-	////std::vector<double> m_timer;
-
-	//double M_PI = 3.14159265359;
-
 	double alpha_;
 	double beta_;
 
@@ -47,6 +38,12 @@ private:
 	std::map<Point_2, FT> z_map_;
 	std::map<Point_2, FT> zgx_map_;
 	std::map<Point_2, FT> zgy_map_;
+
+	bool has_edgepts_kdtree_ = false;
+	ANNTreeWrapper tree_search_edgepts_tool_;
+
+	std::vector<double> x_interval_;
+	std::vector<double> y_interval_;
 
 	//Eigen::MatrixXd z_; // distance transform 
 	//Eigen::MatrixXd zgx_; // distance transform gradient
@@ -66,25 +63,8 @@ public:
 	}
 	
 	void construct_bg_info(double cols, double rows,
-		Eigen::MatrixXd &z, Eigen::MatrixXd &zgx, Eigen::MatrixXd &zgy)
-	{
-		cols_ = (cols-1) / 2.0;
-		rows_ = (rows-1) / 2.0;
-
-		Vector_2 shift_vec(-cols_, -rows_);
-		for (int i = 0; i < cols-1; i++)
-		{
-			for (int j = 0; j < rows-1; j++)
-			{
-				Point_2 pxy(i, j);
-				z_map_.insert(std::make_pair(pxy + shift_vec, z(i, j)));
-				zgx_map_.insert(std::make_pair(pxy + shift_vec, zgx(i, j)));
-				zgy_map_.insert(std::make_pair(pxy + shift_vec, zgy(i, j)));
-				//std::cout << pxy + shift_vec << std::endl;
-			}
-		}
-	}
-
+		Eigen::MatrixXd &z, Eigen::MatrixXd &zgx, Eigen::MatrixXd &zgy,
+		std::vector<Point_2> edge_pts);
 	double alpha() { return alpha_; };
 	double beta() { return beta_; };
 	SolverType get_solvertype() const { return solver_type_; };
@@ -98,7 +78,6 @@ public:
 		m_rt.set_domain(&m_domain);
 	};
 
-	
 	unsigned bg_optimize_all_for_extraction(FT wstep, FT xstep,
 		unsigned max_newton_iters,
 		FT epsilon, unsigned max_iters,
@@ -149,10 +128,13 @@ public:
 		double gy = get_interp_val_from_2dgrid(pos, zgy_map_, -1.0);
 		return Eigen::Vector2d(gx, gy);
 	};
+	void transform_by_scaled_eigen_vectors(Vector_2 &gradient, 
+		const std::vector<Point_2> datapts, const Point_2 pt_cntr = Point_2());
+	void project_gradient_to_feasible_direction(Vector_2 &g, const Point_2 p);
 
-	double get_interp_val_from_2dgrid_test(const Point_2 &pos, std::map<Point_2, FT> &map, const double coef = 1.0);
+	//double get_interp_val_from_kdtree(const Point_2 &pos, std::map<Point_2, FT> &map, const double coef = 1.0);
 	double get_interp_val_from_2dgrid(const Point_2 &pos, std::map<Point_2, FT> &map, const double coef = 1.0);
-
+	void get_interval(double x, double &xl, double &xu, const std::vector<double> &interval);
 	// post-processing
 	void remove_seeds_in_proximity(std::vector<Point_2> &new_sites, double merging_length = 5);
 	void insert_seeds_at_edges(std::vector<Point_2> &new_sites, double merging_length = 5);

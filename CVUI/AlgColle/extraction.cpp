@@ -3,8 +3,33 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>     // std::istream_iterator
+#include <ctime>
+#include <ratio>
+#include <chrono>
 
-void CMeshExtractor::setup_background(int rows, int cols, std::vector<double> &sz, std::vector<double> &vz)
+//void CMeshExtractor::setup_background(int rows, int cols, std::vector<double> &sz, std::vector<double> &vz)
+//{
+//	std::cout << "rows = " << rows << ", cols = " << cols << std::endl;
+//
+//	rows_ = rows;
+//	cols_ = cols;
+//
+//	assert(sz.size() == cols_*rows_);
+//	assert(sz.size() == vz.size());
+//
+//	Eigen::MatrixXd solid_xy_z = Eigen::Map<Eigen::MatrixXd>(sz.data(), rows_, cols_);
+//	Eigen::MatrixXd void_xy_z = Eigen::Map<Eigen::MatrixXd>(vz.data(), rows_, cols_);
+//	z_ = void_xy_z - solid_xy_z;
+//
+//	compute_field_gradients(z_, zgy_, zgx_);
+//
+//	bg_scene_.construct_bg_info(cols_, rows_, z_, zgx_, zgy_);
+//	
+//	write_input_fields_for_check(z_, zgx_, zgy_);
+//}
+
+void CMeshExtractor::setup_background(int rows, int cols, 
+	std::vector<double>& sz, std::vector<double>& vz, std::vector<std::vector<double>> in_edgePts)
 {
 	std::cout << "rows = " << rows << ", cols = " << cols << std::endl;
 
@@ -14,14 +39,22 @@ void CMeshExtractor::setup_background(int rows, int cols, std::vector<double> &s
 	assert(sz.size() == cols_*rows_);
 	assert(sz.size() == vz.size());
 
+	// distance field
 	Eigen::MatrixXd solid_xy_z = Eigen::Map<Eigen::MatrixXd>(sz.data(), rows_, cols_);
 	Eigen::MatrixXd void_xy_z = Eigen::Map<Eigen::MatrixXd>(vz.data(), rows_, cols_);
 	z_ = void_xy_z - solid_xy_z;
 
+	// gradient field
 	compute_field_gradients(z_, zgy_, zgx_);
-
-	bg_scene_.construct_bg_info(cols_, rows_, z_, zgx_, zgy_);
 	
+	// set info to bg_scene
+	std::vector<Point_2> edgePts;
+	for (int i = 0; i < in_edgePts.size(); ++i)
+	{
+		// convert a cv::Point format to a Point_2, switching row-col to x-y
+		edgePts.push_back(Point_2(in_edgePts[i][1], in_edgePts[i][0]));
+	}
+	bg_scene_.construct_bg_info(cols_, rows_, z_, zgx_, zgy_, edgePts);
 	write_input_fields_for_check(z_, zgx_, zgy_);
 }
 
@@ -43,7 +76,7 @@ void CMeshExtractor::run_extraction()
 	int nb = 100;
 	bg_scene_.generate_random_sites(nb);
 
-
+	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
 	// SCENE_OPTIMIZE
 	bg_scene_.bg_optimize_all_for_extraction(stepW, stepX,
@@ -51,6 +84,11 @@ void CMeshExtractor::run_extraction()
 		epsilon, 
 		max_opt_iters, 
 		std::cout);
+
+	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+	std::cout << "It took me " << time_span.count() << " seconds.";
+	std::cout << std::endl;
 
 	std::cout << "finished extraction..." << std::endl;
 
@@ -139,6 +177,14 @@ void CMeshExtractor::compute_field_gradients(
 			zgrady(iy, ix) = gy;
 		}
 	}
+}
+
+void CMeshExtractor::compute_principal_directions(const Eigen::MatrixXd & zmap, 
+	Eigen::MatrixXd & pc1x, Eigen::MatrixXd & pc1y, 
+	Eigen::MatrixXd & pc2x, Eigen::MatrixXd & pc2y)
+{
+	
+	
 }
 
 
