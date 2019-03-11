@@ -9,7 +9,6 @@
 #include <opencv2/opencv.hpp>
 #include <CGAL/bounding_box.h>
 
-
 #define THRESHOLD 1.0
 #define MAXITER 3
 
@@ -28,7 +27,7 @@
 int main()
 {
 	// read some gray-scale image from the given path
-	std::string filename = "D:\\MyProjects\\CVUI4CellularSolid\\CVUI\\img_data\\example7.png";
+	std::string filename = "D:\\MyProjects\\CVUI4CellularSolid\\CVUI\\img_data\\example6.png";
 	cv::Mat src_img = cv::imread(filename);
 	if (src_img.data == NULL)
 		return EXIT_FAILURE;
@@ -44,9 +43,8 @@ int main()
 	int height = 101;
 	int width = double(height) / double(src_img.rows)*double(src_img.cols);
 	cv::resize(src_img, src_img, cv::Size(width, height));
-	CImgData* img_data = new CImgData(src_img);
-
-
+	CImgData* img_data = new CImgData(src_img, true);
+	img_data->save_solid("example6_reversed.png");
 	//
 	std::cout << "\n-compute distance field from image" << std::endl;
 	int rows, cols;

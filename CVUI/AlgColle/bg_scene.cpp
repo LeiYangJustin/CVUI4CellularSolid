@@ -57,6 +57,7 @@ unsigned BgScene::bg_optimize_all_for_extraction(FT wstep, FT xstep,
 
 	// initialize
 	FT norm = optimize_positions_via_lloyd(true);
+	//FT norm = 1000;
 	FT xthreshold = compute_position_threshold(epsilon);
 	xthreshold = 1.0;
 	out << "Threshold: " << xthreshold << std::endl;
@@ -174,6 +175,8 @@ FT BgScene::bg_optimize_positions_via_lagrangian_multiplier()
 		{
 			g /= sqrt(g.squared_length());
 		}
+
+
 
 		double max_alpha = 5.0;
 		int max_iter_linesearch = 20;
@@ -302,6 +305,7 @@ void BgScene::bg_compute_position_gradient_alm_solver(
 		//Vector_2 pgi = alpha_ * cvt_gradient[i] + 2*lambda[i]*field_gradient[i];
 
 		//std::cout << "Pt: " << m_vertices[i]->point().point()
+		//	<< ", g = " << g 
 		//	<< ", G_cvt = " << cvt_gradient[i]
 		//	<< ", G_f = " << field_gradient[i]
 		//	<< ", pgi = " << pgi 
@@ -407,10 +411,9 @@ FT BgScene::bg_compute_energy_alm_solver(const std::vector<double> lambda)
 //}
 
 void BgScene::transform_by_scaled_eigen_vectors(
-	Vector_2 &gradient,	const const std::vector<Point_2> datapts, const Point_2 pt_cntr)
+	Vector_2 &gradient,	const std::vector<Point_2> datapts, const Point_2 pt_cntr)
 {
 	//std::cout << "scaled_eigen_vectors_of_pts" << std::endl;
-
 	int nData = datapts.size();
 
 	// center/mean
@@ -419,13 +422,12 @@ void BgScene::transform_by_scaled_eigen_vectors(
 	{
 		// compute mean
 		for (unsigned i = 0; i < nData; ++i)
-		{
 			cntr += Eigen::Vector2d(datapts[i].x(), datapts[i].y());
-			
-		}
 		cntr /= double(nData);
 	}
-	cntr = Eigen::Vector2d(pt_cntr.x(), pt_cntr.y());
+	else {
+		cntr = Eigen::Vector2d(pt_cntr.x(), pt_cntr.y());
+	}
 
 	// weighted covariance
 	Eigen::Matrix2d Cmat(2, 2);
@@ -433,7 +435,8 @@ void BgScene::transform_by_scaled_eigen_vectors(
 	for (unsigned i = 0; i < nData; ++i)
 	{
 		Eigen::Vector2d v = Eigen::Vector2d(datapts[i].x(), datapts[i].y()) - cntr;
-		double weight = exp(4.0 * v.squaredNorm() / 9.0 + 0.000001) ;
+		//double weight = exp(4.0 * v.squaredNorm() / 9.0 + 0.000001);
+		double weight = 1.0;
 		Cmat += weight*(v*v.transpose());
 	}
 
@@ -453,11 +456,15 @@ void BgScene::transform_by_scaled_eigen_vectors(
 	Eigen::Vector2d gt = rotMat.transpose()*scaleMat*rotMat*g;
 	gradient = Vector_2(gt[0], gt[1]);
 
-	//std::cout << "eigenvectors: \n" << rotMat << std::endl;
-	//std::cout << "eigenvalues: \n" << scaleMat << std::endl;
-	//std::cout << "before transform: \n" << g.transpose() << std::endl;
-	//std::cout << "after transform: \n" << gt.transpose() << std::endl;
-
+	if (isnan(gt[0]) || isnan(gt[1]))
+	{
+		//std::cerr << gradient << std::endl;
+		std::cout << "num of NNpts: " << nData << std::endl;
+		std::cout << "eigenvectors: \n" << rotMat << std::endl;
+		std::cout << "eigenvalues: \n" << scaleMat << std::endl;
+		std::cout << "before transform: \n" << g.transpose() << std::endl;
+		std::cout << "after transform: \n" << gt.transpose() << std::endl;
+	}
 }
 
 void BgScene::project_gradient_to_feasible_direction(Vector_2 & gradient, const Point_2 pt)
@@ -468,8 +475,9 @@ void BgScene::project_gradient_to_feasible_direction(Vector_2 & gradient, const 
 	std::vector<Point_2> nnpts;
 	double sq_radius = 400.0;
 	tree_search_edgepts_tool_.get_fr_nn_from_tree(pt, nnpts, sq_radius);
-
-	transform_by_scaled_eigen_vectors(gradient, nnpts, pt);
+	if (nnpts.size() > 3) {
+		transform_by_scaled_eigen_vectors(gradient, nnpts, pt);
+	}
 }
 
 double BgScene::get_interp_val_from_2dgrid(const Point_2 &pos, std::map<Point_2, FT> &map, const double coef)

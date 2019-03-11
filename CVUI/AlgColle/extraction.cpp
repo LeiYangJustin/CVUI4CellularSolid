@@ -65,15 +65,15 @@ void CMeshExtractor::run_extraction()
 	double stepX = 0.0;
 	double stepW = 0.0;
 	double epsilon = 1.0;
-	int frequency = 0;
+	/*int frequency = 0;*/
 	int max_newton_iters = 5;
-	int max_opt_iters = 50;
+	int max_opt_iters = 100;
 
 	// SET THE DOMAIN
 	bg_scene_.set_domain();
 
 	// INIT THE SITES
-	int nb = 100;
+	int nb = 30;
 	bg_scene_.generate_random_sites(nb);
 
 	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();

@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\algebra">
+      <UniqueIdentifier>{a844ea9e-0ff5-40c9-b9f2-6b49fe77344e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\combinatorics">
+      <UniqueIdentifier>{c6116508-efd2-4a29-91a2-efb1f3f69cbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{04f95706-d2ab-46c0-987a-6ddbd0a209f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\combinatorics\exact">
+      <UniqueIdentifier>{604a8261-e224-4a19-8881-3a44d1b3eacf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LpCVT">
+      <UniqueIdentifier>{b7824688-18d5-464b-abef-49e04195913c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LpCVT\algebra\F_Lp.h">
+      <Filter>Header Files\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\algebra\integration_simplex.h">
+      <Filter>Header Files\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\algebra\measure.h">
+      <Filter>Header Files\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\algebra\three_planes_intersection.h">
+      <Filter>Header Files\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\algebra\voro_func.h">
+      <Filter>Header Files\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\common\vecg.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\common\types.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\common\containers.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\common\line_stream.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\common\matrix.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\common\plane.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\common\processor.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\exact\RVD_predicates.h">
+      <Filter>Header Files\combinatorics\exact</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\exact\side1_static_filter.h">
+      <Filter>Header Files\combinatorics\exact</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\exact\side2_static_filter.h">
+      <Filter>Header Files\combinatorics\exact</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\exact\side3_static_filter.h">
+      <Filter>Header Files\combinatorics\exact</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\RVD.h">
+      <Filter>Header Files\combinatorics</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\clipped_VD.h">
+      <Filter>Header Files\combinatorics</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\delaunay.h">
+      <Filter>Header Files\combinatorics</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\delaunay_CGAL.h">
+      <Filter>Header Files\combinatorics</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\delaunay_skel.h">
+      <Filter>Header Files\combinatorics</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\mesh.h">
+      <Filter>Header Files\combinatorics</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\symbolic_vertex.h">
+      <Filter>Header Files\combinatorics</Filter>
+    </ClInclude>
+    <ClInclude Include="LpCVT\combinatorics\voronoi_cell.h">
+      <Filter>Header Files\combinatorics</Filter>
+    </ClInclude>
+    <ClInclude Include="lpcvt_wrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lpcvt_prereq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="lpcvt_wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LpCVT\combinatorics\delaunay.cpp">
+      <Filter>Source Files\LpCVT</Filter>
+    </ClCompile>
+    <ClCompile Include="LpCVT\combinatorics\delaunay_CGAL.cpp">
+      <Filter>Source Files\LpCVT</Filter>
+    </ClCompile>
+    <ClCompile Include="LpCVT\algebra\F_Lp.cpp">
+      <Filter>Source Files\LpCVT</Filter>
+    </ClCompile>
+    <ClCompile Include="LpCVT\combinatorics\mesh.cpp">
+      <Filter>Source Files\LpCVT</Filter>
+    </ClCompile>
+    <ClCompile Include="LpCVT\common\processor.cpp">
+      <Filter>Source Files\LpCVT</Filter>
+    </ClCompile>
+    <ClCompile Include="LpCVT\combinatorics\exact\RVD_predicates.cpp">
+      <Filter>Source Files\LpCVT</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

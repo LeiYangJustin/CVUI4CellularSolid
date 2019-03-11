@@ -102,7 +102,7 @@ public:
     //
     //void save_eps(const QString& filename) const;
     
-	bool Scene::write_updated_triangulation(std::string fname, RT &rt);
+	bool write_updated_triangulation(std::string fname, RT &rt);
 
     // SITES //
 	void generate_random_sites_in_rectangle_box(const unsigned nb, const unsigned nx, const unsigned ny);

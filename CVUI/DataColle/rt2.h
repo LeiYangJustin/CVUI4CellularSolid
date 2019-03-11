@@ -1,9 +1,5 @@
-// this is adapted from src code of de Goes et al. (2012)
-// Blue Noise through Optimal Transport
-// from http://fernandodegoes.org/
-
-#ifndef _RT2_H_
-#define _RT2_H_ 1
+#ifndef C_DT3_H_
+#define C_DT3_H_ 1
 
 // STL
 #include <cmath>

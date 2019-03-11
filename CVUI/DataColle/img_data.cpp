@@ -1,13 +1,12 @@
 #include "img_data.h"
 
-
-
-CImgData::CImgData(cv::Mat src_img)
+CImgData::CImgData(cv::Mat src_img, bool need_reverse)
 {
 	src_img_ = src_img;
 	// BINARIZE THE EXEMPLAR
-	binarize_src_img();
+	binarize_src_img(need_reverse);
 }
+
 
 CImgData::CImgData() : has_void_skeleton_(false)
 {
@@ -84,14 +83,28 @@ void CImgData::get_two_distance_transform_fields(int &rows, int &cols,
 	}
 }
 
-void CImgData::binarize_src_img()
+void CImgData::save_solid(std::string filename)
+{
+	cv::imwrite(filename, solid_img_);
+}
+
+void CImgData::binarize_src_img(bool need_reverse)
 {
 	// BINARIZE THE EXEMPLAR
 	cv::Mat grayExplImg(src_img_.size(), CV_8UC1);
 	cv::cvtColor(src_img_, grayExplImg, cv::COLOR_BGR2GRAY);
-	cv::blur(grayExplImg, solid_img_, cv::Size(3, 3));
-	cv::threshold(solid_img_, solid_img_, 50, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
-	cv::bitwise_not(solid_img_, void_img_);
+	
+	if (!need_reverse) {
+		cv::blur(grayExplImg, solid_img_, cv::Size(3, 3));
+		cv::threshold(solid_img_, solid_img_, 50, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
+		cv::bitwise_not(solid_img_, void_img_);
+	}
+	else {
+		cv::blur(grayExplImg, void_img_, cv::Size(3, 3));
+		cv::threshold(void_img_, void_img_, 50, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
+		cv::bitwise_not(void_img_, solid_img_);
+	}
+
 	//
 	background_img_ = solid_img_;
 }

@@ -95,6 +95,7 @@ void Scene::populate_vertices(const std::vector<Point_2>& points,
     unsigned nsites = points.size();
     for (unsigned i = 0; i < nsites; ++i)
     {
+		//std::cout << points[i] << std::endl;
         Vertex_handle vertex = insert_vertex(points[i], weights[i], nb);
         if (vertex == Vertex_handle()) continue;
         m_vertices.push_back(vertex);

@@ -14,7 +14,7 @@
 class DATACOLLE_CLASS CImgData
 {
 public:
-	CImgData(cv::Mat src_img);
+	CImgData(cv::Mat src_img, bool need_reverse= false);
 	CImgData();
 	~CImgData();
 	bool ReadImgFromFile(const char* filename);
@@ -43,6 +43,8 @@ public:
 	void get_two_distance_transform_fields(int &rows, int &cols,
 		std::vector<double> &Sfield, std::vector<double> &Vfield);
 
+	void save_solid(std::string filename);
+
 private:
 	cv::Mat src_img_;
 	cv::Mat solid_img_;
@@ -53,7 +55,7 @@ private:
 	std::vector<cv::Point> void_skeletal_pts_;
 	std::vector<cv::Point> solid_skeletal_pts_;
 
-	void binarize_src_img();
+	void binarize_src_img(bool need_reverse = false);
 	void make_background();
 	void convert_skeleton_to_img(bool is_solid, cv::Mat &img);
 	void find_contours(std::vector<std::vector<double>> &edge_pts, const cv::Mat bw);
