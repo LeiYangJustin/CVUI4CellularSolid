@@ -102,17 +102,17 @@
     <ClInclude Include="LpCVT\combinatorics\voronoi_cell.h">
       <Filter>Header Files\combinatorics</Filter>
     </ClInclude>
-    <ClInclude Include="lpcvt_wrapper.h">
+    <ClInclude Include="lpcvt_prereq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lpcvt_prereq.h">
+    <ClInclude Include="lpcvt_data_io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lpcvt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lpcvt_wrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LpCVT\combinatorics\delaunay.cpp">
       <Filter>Source Files\LpCVT</Filter>
     </ClCompile>
@@ -130,6 +130,9 @@
     </ClCompile>
     <ClCompile Include="LpCVT\combinatorics\exact\RVD_predicates.cpp">
       <Filter>Source Files\LpCVT</Filter>
+    </ClCompile>
+    <ClCompile Include="lpcvt.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

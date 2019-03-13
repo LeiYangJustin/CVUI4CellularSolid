@@ -223,35 +223,143 @@ namespace Geex {
         }
         return nb_borders ;
     }
-    
-    void Mesh::init_symbolic_vertices() {
-        for(unsigned int f=0; f<nb_facets(); f++) {
-            for(unsigned int i1=facet_begin(f); i1<facet_end(f); i1++) {
-                unsigned int i2=i1+1 ;
-                if(i2 == facet_end(f)) { i2 = facet_begin(f) ; }
-                // Note: Here we compute vertex(i2).sym 
-                // (and we do not touch vertex(i1).sym).
-                vertex(i2).sym.clear() ;
-                vertex(i2).sym.add_boundary_facet(f) ;
-                if(vertex(i1).f >= 0) {
-                    vertex(i2).sym.add_boundary_facet(vertex(i1).f) ;
-                } else {
-                    // "Virtual" boundary facet: indicates edge (i1,i2 = i1 \oplus 1)
-                    vertex(i2).sym.add_boundary_facet(
-                        (i1 + nb_facets()) - facet_begin(f)
-                    ) ;
-                }
-                if(vertex(i2).f >= 0) {
-                    vertex(i2).sym.add_boundary_facet(vertex(i2).f) ;
-                } else {
-                    // "Virtual" boundary facet: indicates edge (i2,i2 \oplus 1)
-                    vertex(i2).sym.add_boundary_facet(
-                        (i2 + nb_facets()) - facet_begin(f) 
-                    ) ;
-                }
-            }
-        }        
-    }
+ 
+	unsigned int Mesh::init(
+		const std::vector<Geex::vec3> vertex_list, 
+		const std::vector<std::vector<int>> facet_list)
+	{
+		std::vector<vec3> vertex;
+		std::vector< std::vector<unsigned int> > star;
+
+		// Step 1: load vertices and triangles
+		// (and keep track of stars, i.e. lists
+		//  of triangles incident to each vertex).
+
+		// collect vertices and stars
+		vertex = vertex_list;
+		for (unsigned int vi = 0; vi < vertex.size(); ++vi)
+			star.push_back(std::vector<unsigned int>());
+
+		// collect facets
+		for (unsigned int fi = 0; fi < facet_list.size(); ++fi)
+		{
+			std::vector<int> cur_facet;
+			for (unsigned int j = 0; j < facet_list[fi].size(); ++j) 
+			{
+				unsigned int index = facet_list[fi][j];
+				if (index < 1 || index > vertex.size()) {
+					std::cerr << "Out of bounds vertex index"
+						<< std::endl;
+				}
+				else {
+					cur_facet.push_back(index - 1);
+				}
+			}
+			if (cur_facet.size() < 3) {
+				std::cerr << "facet with less than 3 vertices, ignoring"
+					<< std::endl;
+			}
+			else {
+				unsigned int f = nb_facets();
+				begin_facet();
+				for (unsigned int i = 0; i<cur_facet.size(); i++) {
+					unsigned int v = cur_facet[i];
+					add_vertex(VertexEdge(vertex[v]));
+					top_vertex().set_flag(VertexEdge::ORIGINAL);
+					vertex_index_.push_back(v);
+					star[v].push_back(f);
+				}
+				end_facet();
+			}
+		}
+
+		original_vertices_.resize(vertex.size());
+		std::copy(vertex.begin(), vertex.end(), original_vertices_.begin());
+
+		// Step 2: compute facet adjacencies
+		for (unsigned int f = 0; f<nb_facets(); f++) {
+			unsigned int facet_base = facet_begin(f);
+			unsigned int facet_n = facet_size(f);
+
+			for (unsigned int i = 0; i<facet_n; i++) {
+				unsigned int v1 = facet_base + i;
+				unsigned int v2 = facet_base + ((i + 1) % facet_n);
+				unsigned int gv1 = vertex_index_[v1];
+				unsigned int gv2 = vertex_index_[v2];
+				const std::vector<unsigned int>& S = star[gv1];
+				for (unsigned int k = 0; k<S.size(); k++) {
+					unsigned int g = S[k];
+					if (
+						g != f && has_edge(
+							vertex_index_,
+							facet_begin(g), facet_end(g), gv2, gv1
+						)
+						) {
+						this->vertex(v1).f = g;
+						break;
+					}
+				}
+			}
+		}
+
+		// Step 3: assign facet ids
+		for (unsigned int f = 0; f<nb_facets(); f++) {
+			facet_info(f).id = f;
+		}
+
+		// Step 4: initialize symbolic information
+		init_symbolic_vertices();
+
+		// Just for checking
+		unsigned int nb_borders = 0;
+		for (unsigned int i = 0; i<nb_vertices(); i++) {
+			if (this->vertex(i).f < 0) {
+				nb_borders++;
+			}
+		}
+		double vol = signed_volume();
+		orientation_ = (vol > 0.0);
+		std::cerr << "Mesh loaded, nb_facets = " << nb_facets()
+			<< " nb_borders = " << nb_borders
+			<< " signed volume = " << vol
+			<< std::endl;
+		if (!orientation_ && nb_borders == 0) {
+			std::cerr << " WARNING ! orientation is negative"
+				<< std::endl;
+		}
+		return nb_borders;
+	}
+
+	void Mesh::init_symbolic_vertices() {
+		for (unsigned int f = 0; f<nb_facets(); f++) {
+			for (unsigned int i1 = facet_begin(f); i1<facet_end(f); i1++) {
+				unsigned int i2 = i1 + 1;
+				if (i2 == facet_end(f)) { i2 = facet_begin(f); }
+				// Note: Here we compute vertex(i2).sym 
+				// (and we do not touch vertex(i1).sym).
+				vertex(i2).sym.clear();
+				vertex(i2).sym.add_boundary_facet(f);
+				if (vertex(i1).f >= 0) {
+					vertex(i2).sym.add_boundary_facet(vertex(i1).f);
+				}
+				else {
+					// "Virtual" boundary facet: indicates edge (i1,i2 = i1 \oplus 1)
+					vertex(i2).sym.add_boundary_facet(
+						(i1 + nb_facets()) - facet_begin(f)
+					);
+				}
+				if (vertex(i2).f >= 0) {
+					vertex(i2).sym.add_boundary_facet(vertex(i2).f);
+				}
+				else {
+					// "Virtual" boundary facet: indicates edge (i2,i2 \oplus 1)
+					vertex(i2).sym.add_boundary_facet(
+						(i2 + nb_facets()) - facet_begin(f)
+					);
+				}
+			}
+		}
+	}
 
     void Mesh::save(const std::string& filename) {
         std::ofstream out(filename.c_str()) ;

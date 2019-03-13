@@ -21,12 +21,15 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MainPrj3D", "MainPrj3D\MainPrj3D.vcxproj", "{ADAEA5E1-CC01-4B34-BF60-14EFEB04B079}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3515AB03-7B1B-45C3-A6C8-61D84884A18B} = {3515AB03-7B1B-45C3-A6C8-61D84884A18B}
+		{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4} = {30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}
 		{E6682B52-9594-42A4-8A7C-30EB83ADAB63} = {E6682B52-9594-42A4-8A7C-30EB83ADAB63}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Triangulation3", "Triangulation3\Triangulation3.vcxproj", "{E6682B52-9594-42A4-8A7C-30EB83ADAB63}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LpCVT", "LpCVT\LpCVT.vcxproj", "{3515AB03-7B1B-45C3-A6C8-61D84884A18B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Optimizer", "Optimizer\Optimizer.vcxproj", "{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -92,6 +95,14 @@ Global
 		{3515AB03-7B1B-45C3-A6C8-61D84884A18B}.Release|x64.Build.0 = Release|x64
 		{3515AB03-7B1B-45C3-A6C8-61D84884A18B}.Release|x86.ActiveCfg = Release|Win32
 		{3515AB03-7B1B-45C3-A6C8-61D84884A18B}.Release|x86.Build.0 = Release|Win32
+		{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}.Debug|x64.ActiveCfg = Debug|x64
+		{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}.Debug|x64.Build.0 = Debug|x64
+		{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}.Debug|x86.ActiveCfg = Debug|Win32
+		{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}.Debug|x86.Build.0 = Debug|Win32
+		{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}.Release|x64.ActiveCfg = Release|x64
+		{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}.Release|x64.Build.0 = Release|x64
+		{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}.Release|x86.ActiveCfg = Release|Win32
+		{30ACFB22-6CD0-4100-8B5C-2DDD0C9FC8C4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

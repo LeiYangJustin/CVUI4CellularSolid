@@ -570,6 +570,25 @@ namespace Geex {
 
     private:
         Mesh& operator=(const Mesh& rhs) ;
+
+	// added by YL
+	public:
+		void copy_from(const Mesh& rhs)
+		{
+			orientation_ = rhs.orientation();
+			for (unsigned int f = 0; f < rhs.nb_facets(); ++f)
+			{
+				begin_facet();
+				for (unsigned int v = rhs.facet_begin(f); v < rhs.facet_end(f); v++) {
+					add_vertex(rhs.vertex(v));
+				}
+				end_facet();
+				facet_info(top()) = rhs.facet_info(f);
+			}
+		};
+
+		unsigned int init(const std::vector<Geex::vec3> vertex_list, const std::vector<std::vector<int>> facet_list);
+
     } ;
 
 }
